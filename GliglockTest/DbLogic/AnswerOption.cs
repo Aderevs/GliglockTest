@@ -7,10 +7,10 @@ namespace GliglockTest.DbLogic
     {
         public Guid Id { get; set; }
         public Guid QuestionId { get; set; }
-        public TestQuestion Question { get; set; }
+        public TestQuestion? Question { get; set; }
 
         [MaxLength(255)]
-        public string Content { get; set; }
+        public string? Content { get; set; }
         public bool IsCorrect { get; set; }
     }
 }
