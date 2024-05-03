@@ -17,7 +17,7 @@ namespace GliglockTest
 
         public QuestionBuilder AddQuestion(string question)
         {
-            _question.Question = question;
+            _question.QuestionText = question;
             return this;
         }
         public QuestionBuilder AddAnswerOption(string answerOption, bool isCorrect)

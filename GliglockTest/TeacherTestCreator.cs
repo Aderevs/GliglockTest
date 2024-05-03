@@ -1,4 +1,5 @@
-﻿using GliglockTest.DbLogic;
+﻿using AutoMapper;
+using GliglockTest.DbLogic;
 using Microsoft.Identity.Client;
 using System.Runtime.CompilerServices;
 
@@ -7,11 +8,15 @@ namespace GliglockTest
     public class TeacherTestCreator : BaseUser
     {
         private readonly ITestBuilder _testBuilder;
+        private readonly IMapper _mapper;
+        private readonly DbModelAdapter _dbAdapter;
         public List<Test>? CreatedTests { get; set; }
-        public TeacherTestCreator(TestsDbContext dbContext) : base(dbContext)
+        public TeacherTestCreator(TestsDbContext dbContext, IMapper mapper) : base(dbContext)
         {
+            _mapper = mapper;
             _testBuilder = new TestBuilder();
             _testBuilder.OnTestBuilt += CreateTest;
+            _dbAdapter = new DbModelAdapter(dbContext, _mapper);
         }
         public ITestBuilder CreateTestWithBuilder(string name)
         {
@@ -23,23 +28,7 @@ namespace GliglockTest
         public async Task CreateTest(Test test)
         {
             test.TeacherId = Id;
-            var dbModel = ModelConverter.TestToDbModel(test);
-            var questions = ModelConverter.AllQuestionsFromTestToDbModels(test);
-            foreach( var question in questions )
-            {
-                _dbContext.TestsQuestions.Add(question);
-            }
-            foreach( var question in test.Questions)
-            {
-                var options = ModelConverter.AllOptionsFromQuestionToDbModel(question);
-                foreach( var option in options)
-                {
-                    _dbContext.AnswersQuestions.Add(option);
-                }
-            }
-            _dbContext.Tests.Add(dbModel);
-            await _dbContext.SaveChangesAsync();
-
+            await _dbAdapter.SaveCreatedTestToDbAsync(test);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace GliglockTest.DbLogic
         public Guid Id { get; set; }
 
         [MaxLength(100)]
-        public string? TestName { get; set; }
+        public string? Name { get; set; }
 
         [DefaultValue(100)]
         public int MaxMark {  get; set; }
