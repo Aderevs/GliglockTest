@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace GliglockTest
+namespace GliglockTest.appCore
 {
     public class ModelMapper : Profile
     {

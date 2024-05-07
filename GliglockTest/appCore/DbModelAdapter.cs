@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using GliglockTest.DbLogic;
 
-namespace GliglockTest
+namespace GliglockTest.appCore
 {
     public class DbModelAdapter
     {

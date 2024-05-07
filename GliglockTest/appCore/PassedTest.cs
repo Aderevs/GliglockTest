@@ -1,6 +1,6 @@
 ﻿using GliglockTest.DbLogic;
 
-namespace GliglockTest
+namespace GliglockTest.appCore
 {
     public class PassedTest
     {

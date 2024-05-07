@@ -1,5 +1,4 @@
-﻿
-namespace GliglockTest
+﻿namespace GliglockTest.appCore
 {
     public interface ITestBuilder
     {
@@ -10,7 +9,7 @@ namespace GliglockTest
         Test Build();
         void Clear();
         IQuestionBuilder CreateQuestionAndAdd(string questionContent);
-        event  Func<Test, Task>? OnTestBuilt;
+        event Func<Test, Task>? OnTestBuilt;
         TestBuilder SetMaxMark(int maxMark);
         TestBuilder SetTeacherId(Guid teacherId);
     }

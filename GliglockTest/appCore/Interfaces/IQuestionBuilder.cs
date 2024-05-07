@@ -1,5 +1,4 @@
-﻿
-namespace GliglockTest
+﻿namespace GliglockTest.appCore
 {
     public interface IQuestionBuilder
     {

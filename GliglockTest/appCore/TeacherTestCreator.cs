@@ -3,7 +3,7 @@ using GliglockTest.DbLogic;
 using Microsoft.Identity.Client;
 using System.Runtime.CompilerServices;
 
-namespace GliglockTest
+namespace GliglockTest.appCore
 {
     public class TeacherTestCreator : BaseUser
     {

@@ -1,4 +1,4 @@
-﻿namespace GliglockTest
+﻿namespace GliglockTest.appCore
 {
     public class TestQuestion
     {

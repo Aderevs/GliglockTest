@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace GliglockTest
+namespace GliglockTest.appCore
 {
     public class TestBuilder : ITestBuilder
     {

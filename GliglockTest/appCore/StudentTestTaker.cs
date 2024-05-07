@@ -3,9 +3,9 @@ using GliglockTest.DbLogic;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
-namespace GliglockTest
+namespace GliglockTest.appCore
 {
-    public class StudentTestTaker : BaseUser
+    public class StudentTestTaker : BaseUser, IStudentTestTaker
     {
         private readonly IMapper _mapper;
         private readonly DbModelAdapter _modelAdapter;
@@ -14,8 +14,8 @@ namespace GliglockTest
         {
             _mapper = mapper;
             var dbPassedTests = _dbContext.PassedTests
-                .Where(pt=>pt.StudentId==Id)
-                .Include(pt=>pt.Test)
+                .Where(pt => pt.StudentId == Id)
+                .Include(pt => pt.Test)
                 .ToList();
             PassedTests = _mapper.Map<List<PassedTest>>(dbPassedTests);
             _modelAdapter = new DbModelAdapter(_dbContext, _mapper);
@@ -23,9 +23,9 @@ namespace GliglockTest
 
         public async Task SaveTestResultAsync(PassedTest completedTest)
         {
-            if (completedTest == null) 
+            if (completedTest == null)
             {
-                throw new ArgumentNullException(nameof(completedTest)); 
+                throw new ArgumentNullException(nameof(completedTest));
             }
             completedTest.Student = this;
             PassedTests.Add(completedTest);
