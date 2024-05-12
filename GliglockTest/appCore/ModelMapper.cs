@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.Linq.Expressions;
 
 namespace GliglockTest.appCore
 {
@@ -14,9 +15,11 @@ namespace GliglockTest.appCore
             CreateMap<TestQuestion, DbLogic.TestQuestion>();
             CreateMap<AnswerOption, DbLogic.AnswerOption>();
 
-            CreateMap<DbLogic.Test, Test>();
+            CreateMap<DbLogic.Test, Test>()
+                .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions));
             CreateMap<DbLogic.PassedTest, PassedTest>();
-            CreateMap<DbLogic.TestQuestion, TestQuestion>();
+            CreateMap<DbLogic.TestQuestion, TestQuestion>()
+                .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.AnswerOptions));
             CreateMap<DbLogic.AnswerOption, AnswerOption>();
         }
     }

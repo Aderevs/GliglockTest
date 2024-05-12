@@ -1,0 +1,125 @@
+﻿@model GliglockTest.appCore.TestQuestion;
+
+@* <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>@Model.QuestionText</h1>
+    @foreach (var option in Model.Options)
+    {
+        if (Model.HasManyAnswers)
+        {
+            <input type="checkbox" id="@option.Id.ToString()" name="@Model.QuestionText" />
+        }
+        else
+        {
+            <input type="radio" id="@option.Id.ToString()" name="@Model.QuestionText" />
+
+        }
+        <label for="@option.Id.ToString()">@option.Content</label>
+        <br />
+    }
+</body>
+</html> *@
+
+@{
+    var questionsJson = System.Text.Json.JsonSerializer.Serialize(ViewBag.Questions);
+}
+
+<div id="question" class="question"></div>
+<button onclick="previousQuestion()">Попереднє</button>
+<button onclick="nextQuestion()">Наступне</button>
+<button onclick="finishTest()">Finish Test</button>
+
+<script>
+    let questions = @Html.Raw(questionsJson);
+    let currentQuestionIndex = 0;
+    let answers = [];
+
+
+    function displayQuestion(index) {
+        var questionDiv = document.getElementById('question');
+        questionDiv.innerHTML = '<h3>' + questions[index].QuestionText + '</h3>';
+        questions[index].Options.forEach(function (option) {
+            let checked = '';
+            if (questions[index].HasManyAnswers) {
+
+                if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Id)) {
+                    checked = 'checked';
+
+                }
+                questionDiv.innerHTML += '<br> <input type="checkbox" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].QuestionText + '" ' + checked + ' />';
+            } else {
+
+                if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Id)) {
+                    checked = 'checked';
+                }
+                questionDiv.innerHTML += '<br> <input type="radio" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].QuestionText + '" ' + checked + ' />';
+            }
+            questionDiv.innerHTML += ' <label for="' + option.Id + '">' + option.Content + '</label> <br> '
+        })
+
+    }
+
+    displayQuestion(currentQuestionIndex);
+    function saveAnswer() {
+        let selectedOptions = [];
+        let currentQuestion = questions[currentQuestionIndex];
+
+        if (currentQuestion.HasManyAnswers) {
+            let checkboxes = document.querySelectorAll('.question input[type="checkbox"]:checked');
+            checkboxes.forEach(function (checkbox) {
+                selectedOptions.push(checkbox.id);
+            });
+        } else {
+            let radio = document.querySelector('.question input[type="radio"]:checked');
+            if (radio) {
+                selectedOptions.push(radio.id);
+            }
+        }
+
+        answers[currentQuestionIndex] = { questionId: currentQuestion.Id, selectedOptions: selectedOptions };
+    }
+
+    function nextQuestion() {
+        saveAnswer();
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            displayQuestion(currentQuestionIndex);
+        }
+    }
+
+    function previousQuestion() {
+        saveAnswer();
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            displayQuestion(currentQuestionIndex);
+        }
+    }
+    function finishTest() {
+        saveAnswer(); // Зберегти відповідь перед закінченням
+
+
+
+        //Виконати Ajax-запит для надсилання відповідей на сервер
+        $.ajax({
+            url: '/Tests/SubmitAnswers?TestId=' + @Model.Id.ToString(),
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(answers.filter(function (answer) {
+                return answer !== undefined; // Фільтруємо відповіді, які не були обрані
+            })),
+            success: function (response) {
+                console.log('Answers submitted successfully');
+            },
+            error: function (xhr, status, error) {
+                console.error('Error submitting answers: ' + error);
+            }
+        });
+
+    }
+</script>

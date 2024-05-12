@@ -22,6 +22,7 @@ namespace GliglockTest.DbLogic
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<Student>()
                 .HasMany(s => s.PassedTests)
                 .WithOne(pt => pt.Student)

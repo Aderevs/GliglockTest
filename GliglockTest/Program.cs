@@ -1,3 +1,8 @@
+using AutoMapper;
+using GliglockTest.appCore;
+using GliglockTest.DbLogic;
+using System.Reflection;
+
 namespace GliglockTest
 {
     public class Program
@@ -7,7 +12,17 @@ namespace GliglockTest
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews()
+                .AddCookieTempDataProvider();
+            builder.Services.AddScoped(provider =>
+            {
+                var connectionString = "Server=localhost\\SQLEXPRESS;Database=GliglockTestDB;Trusted_Connection=True;TrustServerCertificate=True;";
+                return new TestsDbContext(connectionString);
+            });
+            builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<ModelMapper>();
+            });
 
             var app = builder.Build();
 

@@ -1,0 +1,22 @@
+SELECT * FROM Tests;
+SELECT * FROM TestsQuestions;
+SELECT * FROM AnswersQuestions;
+
+INSERT INTO TestsQuestions
+VALUES
+('00000000-0000-0000-0000-000000000002', 'Обреріть кілька правильних відповідей:', '00000000-0000-0000-0000-000000000000');
+
+INSERT INTO AnswersQuestions
+VALUES
+(NEWID(), '00000000-0000-0000-0000-000000000002', 'хибна', 0),
+(NEWID(), '00000000-0000-0000-0000-000000000002', 'правильна', 1),
+(NEWID(), '00000000-0000-0000-0000-000000000002', 'хибна', 0),
+(NEWID(), '00000000-0000-0000-0000-000000000002', 'правильна', 1);
+
+UPDATE AnswersQuestions
+SET Content = Content+'2'
+WHERE QuestionId = '00000000-0000-0000-0000-000000000002'
+
+DELETE
+FROM Tests
+WHERE Name = 'first_test'

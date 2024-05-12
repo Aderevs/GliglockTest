@@ -2,7 +2,7 @@
 {
     public class PassedTest
     {
-        Guid Id { get; set; }
+        public Guid Id { get; set; }
         public int Mark { get; set; }
         public Guid StudentId { get; set; }
         public Student Student { get; set; }

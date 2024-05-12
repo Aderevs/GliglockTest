@@ -37,7 +37,7 @@
             {
                 throw new ArgumentNullException(nameof(answer));
             }
-            if ((bool)Options?.Contains(answer))
+            if (Options != null && Options.Contains(answer))
             {
                 if (_studentsAnswer == null)
                 {
@@ -49,6 +49,18 @@
             {
                 throw new InvalidOperationException("attempt to set student's answer with option which doesn't exist in answer options");
             }
+        }
+        public void AddStudentsAnswer(IEnumerable<AnswerOption> answers)
+        {
+            foreach(var answer in answers)
+            {
+                AddStudentsAnswer(answer);
+            }
+        }
+
+        public void ClearStudentAnswer()
+        {
+            _studentsAnswer?.Clear();
         }
     }
 }
