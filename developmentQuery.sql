@@ -1,6 +1,7 @@
 SELECT * FROM Tests;
 SELECT * FROM TestsQuestions;
 SELECT * FROM AnswersQuestions;
+SELECT * FROM Students;
 
 INSERT INTO TestsQuestions
 VALUES

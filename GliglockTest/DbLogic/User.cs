@@ -19,6 +19,6 @@ namespace GliglockTest.DbLogic
 
         [EmailAddress]
         public string? Email { get; set; }
-        public DateOnly BirthDay { get; set; }
+        public DateOnly? BirthDay { get; set; }
     }
 }

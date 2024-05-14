@@ -1,0 +1,14 @@
+﻿@model List<GliglockTest.appCore.PassedTest>
+
+<h1>Passed tests</h1>
+<div>
+    @foreach (var test in Model)
+    {
+
+        <div>
+            @test.Test.Name
+            <br />
+            @test.Mark/@test.Test.MaxMark
+        </div>
+    }
+</div>

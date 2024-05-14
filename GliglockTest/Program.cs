@@ -1,6 +1,7 @@
 using AutoMapper;
 using GliglockTest.appCore;
 using GliglockTest.DbLogic;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Reflection;
 
 namespace GliglockTest
@@ -12,9 +13,9 @@ namespace GliglockTest
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllersWithViews()
-                .AddCookieTempDataProvider();
-            builder.Services.AddScoped(provider =>
+            builder.Services.AddControllersWithViews();
+                //.AddCookieTempDataProvider();
+            builder.Services.AddSingleton(provider =>
             {
                 var connectionString = "Server=localhost\\SQLEXPRESS;Database=GliglockTestDB;Trusted_Connection=True;TrustServerCertificate=True;";
                 return new TestsDbContext(connectionString);
@@ -23,6 +24,11 @@ namespace GliglockTest
             {
                 cfg.AddProfile<ModelMapper>();
             });
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+               .AddCookie(options =>
+               {
+                   options.LoginPath = "/account/signUp";
+               });
 
             var app = builder.Build();
 

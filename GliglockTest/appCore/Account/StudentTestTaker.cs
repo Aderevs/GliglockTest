@@ -3,9 +3,9 @@ using GliglockTest.DbLogic;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
-namespace GliglockTest.appCore
+namespace GliglockTest.appCore.Account
 {
-    public class StudentTestTaker : BaseUser, IStudentTestTaker
+    public class StudentTestTaker : BaseUser
     {
         private readonly IMapper _mapper;
         private readonly DbModelAdapter _modelAdapter;
