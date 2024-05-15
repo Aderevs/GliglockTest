@@ -18,7 +18,7 @@ namespace GliglockTest.Models
         public string Email {  get; set; }
 
         [UIHint("Date")]
-        //[CheckDateNotEarlierThanToday(ErrorMessage = "We do not provide services to people who have not yet been born")]
+        [CheckDateNotEarlierThanToday(ErrorMessage = "We do not provide services to people who have not yet been born")]
         public DateOnly? Birthday { get; set; }
 
         [Required]

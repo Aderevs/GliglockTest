@@ -22,7 +22,7 @@ namespace GliglockTest
             });
             builder.Services.AddAutoMapper(cfg =>
             {
-                cfg.AddProfile<ModelMapper>();
+                cfg.AddProfile<ModelProfile>();
             });
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                .AddCookie(options =>

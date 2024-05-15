@@ -2,9 +2,12 @@
 
 <h1>Passed tests</h1>
 <div>
+    @if(Model == null || Model.Count < 1)
+    {
+        <div>You have not passed any test yet...</div>
+    }
     @foreach (var test in Model)
     {
-
         <div>
             @test.Test.Name
             <br />

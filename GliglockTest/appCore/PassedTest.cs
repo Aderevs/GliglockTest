@@ -13,6 +13,7 @@ namespace GliglockTest.appCore
                 return (float)(Test.Questions.Count(q => q.HasManyAnswers) * 1.5 + Test.Questions.Count(q => !q.HasManyAnswers));
             }
         }
+        public Test Test { get; set; }
         public float Mark
         {
             get
@@ -32,7 +33,6 @@ namespace GliglockTest.appCore
             }
         }
         public StudentTestTaker? Student { get; set; }
-        public Test Test { get; set; }
         public void CalculateMark()
         {
             float resultMark = 0;

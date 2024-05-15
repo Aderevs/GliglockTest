@@ -2,6 +2,7 @@ SELECT * FROM Tests;
 SELECT * FROM TestsQuestions;
 SELECT * FROM AnswersQuestions;
 SELECT * FROM Students;
+SELECT * FROM PassedTests;
 
 INSERT INTO TestsQuestions
 VALUES
@@ -21,3 +22,13 @@ WHERE QuestionId = '00000000-0000-0000-0000-000000000002'
 DELETE
 FROM Tests
 WHERE Name = 'first_test'
+
+
+
+DELETE
+FROM AnswersQuestions
+WHERE Content IN ('хибна22', 'правильна22' )
+
+DELETE
+FROM PassedTests
+WHERE Id IN ('3B6312C4-D614-4280-A864-08DC750A9DCD','BD7F617F-A247-449A-F434-08DC751C128E')

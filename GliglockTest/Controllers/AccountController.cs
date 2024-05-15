@@ -11,7 +11,7 @@ namespace GliglockTest.Controllers
 {
     public class AccountController : Controller
     {
-        private TestsDbContext _dbContext;
+        private readonly TestsDbContext _dbContext;
 
         public AccountController(TestsDbContext dbContext)
         {

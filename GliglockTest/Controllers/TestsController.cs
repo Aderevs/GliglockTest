@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace GliglockTest.Controllers
 {
@@ -46,20 +47,12 @@ namespace GliglockTest.Controllers
             return View(test);
         }
 
-        /*public IActionResult CertainQuestion(Guid testId, Guid questionId)
-        {
-            var test = _tests.First(t => t.Id == testId);
-            var question = test.Questions.First(q => q.Id == questionId);
-            var allQuestions = test.Questions;
-            ViewBag.Questions = allQuestions;
-            return View(question);
-        }*/
 
         [HttpPost]
-        public IActionResult SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid TestId)
+        public async Task<IActionResult> SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid TestId)
         {
             appCore.PassedTest passedTest = new appCore.PassedTest();
-
+            
             passedTest.Test = _tests.First(t => t.Id == TestId);
             if (answers == null)
             {
@@ -82,6 +75,22 @@ namespace GliglockTest.Controllers
 
             });
             passedTest.CalculateMark();
+            if (User.Identity.IsAuthenticated)
+            {
+                appCore.Account.StudentTestTaker student = new(_dbContext, _mapper);
+                var studentDb = await _dbContext.Students
+                    .Include(s=>s.PassedTests)
+                    .ThenInclude(pt=>pt.Test)
+                    .FirstAsync(s => s.Email == User.Identity.Name);
+                student.Id = studentDb.Id;
+                student.Email = studentDb.Email;
+                student.FirstName = studentDb.FirstName;
+                student.LastName = studentDb.LastName;
+                student.BirthDay = studentDb.BirthDay;
+                var studentsPassedTests = _mapper.Map<List<appCore.PassedTest>>(studentDb.PassedTests);
+                student.PassedTests = studentsPassedTests;
+                await student.SaveTestResultAsync(passedTest);
+            }
             return View("Results", passedTest);
         }
 

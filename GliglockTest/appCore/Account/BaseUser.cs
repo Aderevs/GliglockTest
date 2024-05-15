@@ -20,7 +20,7 @@ namespace GliglockTest.appCore.Account
         public string? LastName { get; set; }
 
         public string? Email { get; set; }
-        public DateOnly BirthDay { get; set; }
+        public DateOnly? BirthDay { get; set; }
 
     }
 }

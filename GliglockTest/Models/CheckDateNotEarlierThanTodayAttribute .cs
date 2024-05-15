@@ -6,10 +6,21 @@ namespace GliglockTest.Models
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            DateTime date = (DateTime)value;
-            if (date < DateTime.Today)
+            if(value != null)
             {
-                return new ValidationResult(ErrorMessage);
+                DateTime date;
+                if (value is DateOnly dateOnly)
+                {
+                    date = new DateTime(dateOnly.Year, dateOnly.Month, dateOnly.Day);
+                }
+                else
+                {
+                    date = (DateTime)value;
+                }
+                if (date > DateTime.Today)
+                {
+                    return new ValidationResult(ErrorMessage);
+                }
             }
             return ValidationResult.Success;
         }
