@@ -5,6 +5,6 @@
         QuestionBuilder AddAnswerOption(string answerOption, bool isCorrect);
         QuestionBuilder AddAnswerOptions(List<AnswerOption> answerOptions);
         QuestionBuilder AddQuestion(string question);
-        TestQuestion Build();
+        Question Build();
     }
 }

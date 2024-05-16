@@ -20,15 +20,15 @@ namespace GliglockTest.appCore
             var testId = test.Id; 
             foreach(var question in test.Questions)
             {
-                var dbQuestion = _mapper.Map<DbLogic.TestQuestion>(question);
+                var dbQuestion = _mapper.Map<DbLogic.Question>(question);
                 dbQuestion.TestId = testId;
-                _dbContext.TestsQuestions.Add(dbQuestion);
+                _dbContext.Questions.Add(dbQuestion);
                 var questionId = question.Id;
-                foreach(var option in question.Options)
+                foreach(var option in question.AnswerOptions)
                 {
                     var dbOption = _mapper.Map<DbLogic.AnswerOption>(option);
                     dbOption.QuestionId = questionId;
-                    _dbContext.AnswersQuestions.Add(dbOption);
+                    _dbContext.AnswerOptions.Add(dbOption);
                 }
             }
             await _dbContext.SaveChangesAsync();

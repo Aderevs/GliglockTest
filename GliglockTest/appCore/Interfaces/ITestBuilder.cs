@@ -3,8 +3,8 @@
     public interface ITestBuilder
     {
         TestBuilder AddName(string name);
-        TestBuilder AddQuestion(TestQuestion question);
-        TestBuilder AddQuestions(List<TestQuestion> questions);
+        TestBuilder AddQuestion(Question question);
+        TestBuilder AddQuestions(List<Question> questions);
         Task<Test> BuildAsync();
         Test Build();
         void Clear();

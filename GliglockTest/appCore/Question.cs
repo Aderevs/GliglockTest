@@ -1,11 +1,11 @@
 ﻿namespace GliglockTest.appCore
 {
-    public class TestQuestion
+    public class Question
     {
         private List<AnswerOption>? _studentsAnswer;
         public Guid Id { get; set; }
-        public string? QuestionText { get; set; }
-        public List<AnswerOption>? Options { get; set; }
+        public string? Text { get; set; }
+        public List<AnswerOption>? AnswerOptions { get; set; }
         public AnswerOption[] StudentsAnswer
         {
             get
@@ -24,20 +24,14 @@
                 return _studentsAnswer != null;
             }
         }
-        public bool HasManyAnswers
-        {
-            get
-            {
-                return Options?.Count(o => o.IsCorrect) > 1;
-            }
-        }
+        public bool HasManyAnswers => AnswerOptions?.Count(o => o.IsCorrect) > 1;
         public void AddStudentsAnswer(AnswerOption answer)
         {
             if (answer == null)
             {
                 throw new ArgumentNullException(nameof(answer));
             }
-            if (Options != null && Options.Contains(answer))
+            if (AnswerOptions != null && AnswerOptions.Contains(answer))
             {
                 if (_studentsAnswer == null)
                 {

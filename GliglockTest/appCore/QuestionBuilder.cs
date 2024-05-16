@@ -4,29 +4,29 @@ namespace GliglockTest.appCore
 {
     public class QuestionBuilder : IQuestionBuilder
     {
-        private readonly TestQuestion _question;
+        private readonly Question _question;
         public QuestionBuilder()
         {
-            _question = new TestQuestion();
+            _question = new Question();
         }
 
-        public QuestionBuilder(TestQuestion question)
+        public QuestionBuilder(Question question)
         {
             _question = question;
         }
 
         public QuestionBuilder AddQuestion(string question)
         {
-            _question.QuestionText = question;
+            _question.Text = question;
             return this;
         }
         public QuestionBuilder AddAnswerOption(string answerOption, bool isCorrect)
         {
-            if (_question.Options == null)
+            if (_question.AnswerOptions == null)
             {
-                _question.Options = new();
+                _question.AnswerOptions = new();
             }
-            _question.Options.Add(
+            _question.AnswerOptions.Add(
                 new AnswerOption
                 {
                     Content = answerOption,
@@ -36,17 +36,17 @@ namespace GliglockTest.appCore
         }
         public QuestionBuilder AddAnswerOptions(List<AnswerOption> answerOptions)
         {
-            if (_question.Options == null)
+            if (_question.AnswerOptions == null)
             {
-                _question.Options = new();
+                _question.AnswerOptions = new();
             }
-            _question.Options.AddRange(answerOptions);
+            _question.AnswerOptions.AddRange(answerOptions);
             return this;
         }
 
-        public TestQuestion Build()
+        public Question Build()
         {
-            if (_question.Options == null || !_question.Options.Any())
+            if (_question.AnswerOptions == null || !_question.AnswerOptions.Any())
             {
                 throw new InvalidOperationException("Attempt to create test question without correct answer");
             }

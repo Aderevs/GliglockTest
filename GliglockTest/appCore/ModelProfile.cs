@@ -15,20 +15,19 @@ namespace GliglockTest.appCore
                 .ForMember(dest => dest.Test, opt => opt.Ignore())
                 .ForMember(dest => dest.Student, opt => opt.Ignore());
 
-            CreateMap<TestQuestion, DbLogic.TestQuestion>();
+            CreateMap<Question, DbLogic.Question>();
             CreateMap<AnswerOption, DbLogic.AnswerOption>();
 
-            CreateMap<StudentTestTaker, DbLogic.Student>();
 
             CreateMap<DbLogic.Test, Test>()
                 .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions));
+
             CreateMap<DbLogic.PassedTest, PassedTest>()
                 .ForMember(dest => dest.Student, opt => opt.Ignore());
-            CreateMap<DbLogic.TestQuestion, TestQuestion>()
-                .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.AnswerOptions));
+
+            CreateMap<DbLogic.Question, Question>();
             CreateMap<DbLogic.AnswerOption, AnswerOption>();
 
-            CreateMap<DbLogic.Student, StudentTestTaker>();
         }
     }
 }

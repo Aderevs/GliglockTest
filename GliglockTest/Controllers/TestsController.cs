@@ -64,7 +64,7 @@ namespace GliglockTest.Controllers
             passedTest.Test.Questions.ForEach(question =>
             {
                 question.ClearStudentAnswer();
-                var answersToSet = question.Options;
+                var answersToSet = question.AnswerOptions;
                 var currentQuestionAnswers = answers
                 .First(a => a.QuestionId == question.Id)
                 .SelectedOptions;

@@ -26,12 +26,12 @@ namespace GliglockTest.appCore
             _test.TeacherId = teacherId;
             return this;
         }
-        public TestBuilder AddQuestion(TestQuestion question)
+        public TestBuilder AddQuestion(Question question)
         {
             _test.Questions.Add(question);
             return this;
         }
-        public TestBuilder AddQuestions(List<TestQuestion> questions)
+        public TestBuilder AddQuestions(List<Question> questions)
         {
             _test.Questions.AddRange(questions);
             return this;
@@ -39,7 +39,7 @@ namespace GliglockTest.appCore
 
         public IQuestionBuilder CreateQuestionAndAdd(string questionContent)
         {
-            var question = new TestQuestion()
+            var question = new Question()
             /*{
                 TestId = _test.Id
             }*/;

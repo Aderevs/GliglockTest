@@ -6,13 +6,7 @@ namespace GliglockTest.appCore
     public class PassedTest
     {
         private float _mark;
-       private float MaxDefaultMark
-        {
-            get
-            {
-                return (float)(Test.Questions.Count(q => q.HasManyAnswers) * 1.5 + Test.Questions.Count(q => !q.HasManyAnswers));
-            }
-        }
+        private float MaxDefaultMark => (float)(Test.Questions.Count(q => q.HasManyAnswers) * 1.5 + Test.Questions.Count(q => !q.HasManyAnswers));
         public Test Test { get; set; }
         public float Mark
         {
@@ -43,15 +37,15 @@ namespace GliglockTest.appCore
             var res = Test.MaxMark / (float)MaxDefaultMark * resultMark;
             Mark = res;
         }
-        private float CalculateQuestion(TestQuestion question)
+        private float CalculateQuestion(Question question)
         {
             if (question == null)
             {
                 throw new ArgumentNullException(nameof(question));
             }
-            if (question.Options == null)
+            if (question.AnswerOptions == null)
             {
-                throw new InvalidOperationException($"The field {nameof(question.Options)} of the argument {nameof(question)} is null");
+                throw new InvalidOperationException($"The field {nameof(question.AnswerOptions)} of the argument {nameof(question)} is null");
             }
             if (!question.HasStudentAnswer)
             {
@@ -60,8 +54,8 @@ namespace GliglockTest.appCore
             float result;
             if (question.HasManyAnswers)
             {
-                int numberOfCorrectAnswers = question.Options.Count(o => o.IsCorrect);
-                var CorrectAnswers = question.Options.Where(o => o.IsCorrect).ToList();
+                int numberOfCorrectAnswers = question.AnswerOptions.Count(o => o.IsCorrect);
+                var CorrectAnswers = question.AnswerOptions.Where(o => o.IsCorrect).ToList();
                 int numberOfRightAnswers = 0;
                 int numberOfFaults = 0;
                 foreach (var studentAnswer in question.StudentsAnswer)
@@ -88,7 +82,7 @@ namespace GliglockTest.appCore
             }
             else
             {
-                if(question.StudentsAnswer.Contains(question.Options.First(q=>q.IsCorrect)))
+                if (question.StudentsAnswer.Contains(question.AnswerOptions.First(q => q.IsCorrect)))
                 {
                     return 1f;
                 }

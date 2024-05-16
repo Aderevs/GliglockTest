@@ -14,7 +14,7 @@ namespace GliglockTest.DbLogic
         public int MaxMark {  get; set; }
         public Guid TeacherId { get; set; }
         public Teacher? Teacher { get; set; }
-        public List<TestQuestion>? Questions { get; set; }
+        public List<Question>? Questions { get; set; }
         public List<PassedTest>? Results { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
 using System.Diagnostics;
 
 namespace GliglockTest.DbLogic
@@ -10,15 +11,14 @@ namespace GliglockTest.DbLogic
         public TestsDbContext(string connectionString)
         {
             _connectionString = connectionString;
-            Database.EnsureCreated();
         }
 
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Test> Tests { get; set; }
         public DbSet<PassedTest> PassedTests { get; set; }
-        public DbSet<TestQuestion> TestsQuestions { get; set; }
-        public DbSet<AnswerOption> AnswersQuestions { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<AnswerOption> AnswerOptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,7 +38,7 @@ namespace GliglockTest.DbLogic
                 .WithOne(q => q.Test)
                 .HasForeignKey(q => q.TestId);
 
-            modelBuilder.Entity<TestQuestion>()
+            modelBuilder.Entity<Question>()
                 .HasMany(q => q.AnswerOptions)
                 .WithOne(ao => ao.Question)
                 .HasForeignKey(ao => ao.QuestionId);
