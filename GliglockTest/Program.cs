@@ -1,8 +1,9 @@
-using AutoMapper;
 using GliglockTest.appCore;
+using GliglockTest.appCore.Account;
 using GliglockTest.DbLogic;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Reflection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace GliglockTest
 {
@@ -14,12 +15,19 @@ namespace GliglockTest
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-                //.AddCookieTempDataProvider();
+            //.AddCookieTempDataProvider();
             builder.Services.AddSingleton(provider =>
             {
-                var connectionString = "Server=localhost\\SQLEXPRESS;Database=GliglockTestDB;Trusted_Connection=True;TrustServerCertificate=True;";
+                var connectionString = builder.Configuration["ConnectionStrings"];//"Server=localhost\\SQLEXPRESS;Database=GliglockTestDB;Trusted_Connection=True;TrustServerCertificate=True;";
                 return new TestsDbContext(connectionString);
             });
+
+            builder.Services.AddIdentity<BaseUser, IdentityRole>()
+                    .AddEntityFrameworkStores<TestsDbContext>()
+                    .AddDefaultTokenProviders();
+            builder.Services.AddScoped<SignInManager<BaseUser>>();
+
+
             builder.Services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<ModelProfile>();
@@ -28,6 +36,11 @@ namespace GliglockTest
                .AddCookie(options =>
                {
                    options.LoginPath = "/account/SignUp";
+               })
+               .AddGoogle(options =>
+               {
+                   options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                   options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
                });
 
             var app = builder.Build();

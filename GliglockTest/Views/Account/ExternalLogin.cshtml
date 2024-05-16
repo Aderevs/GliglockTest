@@ -1,0 +1,32 @@
+﻿@model GliglockTest.Models.RegistrationBindingModel
+@{
+    ViewData["Title"] = "External Login";
+}
+
+<h1>External Login</h1>
+
+<p>
+    You've successfully authenticated with @ViewData["LoginProvider"]. If you already have an account with this email address, you can sign in below.
+</p>
+
+<form asp-action="ExternalLogin" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Sign in</button>
+</form>
+
+<p>
+    If you don't have an account, you can register with this email address.
+</p>
+
+<form asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>

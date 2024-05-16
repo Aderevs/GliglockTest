@@ -4,8 +4,8 @@
 }
 
 <div class="col-md-4">
-    <h1 class="display-4">Sign In</h1>
-    <form asp-action="SignIn">
+    <h1 class="display-4">Log in</h1>
+    <form asp-action="LogIn">
         <div class="form-group">
             <label asp-for="Email" class="control-label"></label>
             <input asp-for="Email" class="form-control" />
@@ -16,12 +16,14 @@
             <input asp-for="Password" class="form-control" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
+        <p>Or login with:</p>
+        <a href="/Account/ExternalLogin?provider=Google">Sign in with Google</a>
         <br />
         <a asp-action="SignUp">I don't have an account yet. Register</a>
         <br />
         <br />
         <div class="form-group">
-            <input type="submit" value="Sing In" class="btn btn-primary" />
+            <input type="submit" value="Log in" class="btn btn-primary" />
         </div>
     </form>
 </divc>

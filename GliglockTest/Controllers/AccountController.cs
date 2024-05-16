@@ -8,6 +8,8 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace GliglockTest.Controllers
 {
@@ -15,11 +17,23 @@ namespace GliglockTest.Controllers
     {
         private readonly TestsDbContext _dbContext;
         private readonly IMapper _mapper;
+        //private readonly SignInManager<BaseUser> _signInManager;
+        //private readonly UserManager<BaseUser> _userManager;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(TestsDbContext dbContext, IMapper mapper)
+
+        public AccountController(
+            TestsDbContext dbContext, 
+            IMapper mapper,
+            //SignInManager<BaseUser> signInManager,
+           // UserManager<BaseUser> userManager,
+            ILogger<AccountController> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+           // _signInManager = signInManager;
+           // _userManager = userManager;
+            _logger = logger;
         }
 
         [Authorize]
@@ -69,13 +83,13 @@ namespace GliglockTest.Controllers
             }
         }
 
-        public IActionResult SignIn()
+        public IActionResult LogIn()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> SignIn(AuthenticationBindingModel model)
+        public async Task<IActionResult> LogIn(AuthenticationBindingModel model)
         {
 
             if (ModelState.IsValid)
@@ -115,6 +129,64 @@ namespace GliglockTest.Controllers
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
             await HttpContext.SignInAsync(claimsPrincipal);
+        }
+
+        /*public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        {
+            // Redirect to external authentication provider
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                // Handle external authentication provider error
+                return RedirectToAction("SignIn");
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                // Handle external authentication provider error
+                return RedirectToAction("SignIn");
+            }
+
+            // Sign in the user with this external login provider if the user already has a login
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User logged in with {Name} provider.", info.LoginProvider);
+                return LocalRedirect(returnUrl ?? "/");
+            }
+            if (result.IsLockedOut)
+            {
+                return RedirectToAction("Lockout");
+            }
+            else
+            {
+                // If the user does not have an account, then ask the user to create an account
+                ViewData["ReturnUrl"] = returnUrl;
+                ViewData["LoginProvider"] = info.LoginProvider;
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                return View("ExternalLogin", new RegistrationBindingModel { Email = email });
+            }
+        }*/
+
+        public IActionResult ExternalLogin()
+        {
+            var prorerties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse") };
+            return Challenge(prorerties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var identities = result.Principal.Identities.ToList();
+            return Json(identities);
         }
     }
 }
