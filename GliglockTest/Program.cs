@@ -17,7 +17,7 @@ namespace GliglockTest
                 //.AddCookieTempDataProvider();
             builder.Services.AddSingleton(provider =>
             {
-                var connectionString = "Server=localhost\\SQLEXPRESS;Database=GliglockTestDB;Trusted_Connection=True;TrustServerCertificate=True;";
+                var connectionString = builder.Configuration["ConnectionString"];
                 return new TestsDbContext(connectionString);
             });
             builder.Services.AddAutoMapper(cfg =>

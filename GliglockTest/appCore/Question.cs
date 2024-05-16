@@ -5,6 +5,7 @@
         private List<AnswerOption>? _studentsAnswer;
         public Guid Id { get; set; }
         public string? Text { get; set; }
+        public bool WithImg { get; set; }
         public List<AnswerOption>? AnswerOptions { get; set; }
         public AnswerOption[] StudentsAnswer
         {
@@ -46,7 +47,7 @@
         }
         public void AddStudentsAnswer(IEnumerable<AnswerOption> answers)
         {
-            foreach(var answer in answers)
+            foreach (var answer in answers)
             {
                 AddStudentsAnswer(answer);
             }

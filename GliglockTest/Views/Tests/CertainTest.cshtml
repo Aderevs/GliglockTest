@@ -10,7 +10,6 @@
     <button onclick="finishTest()">Finish Test</button>
 </div>
 
-
 <script>
     let questions = @Html.Raw(questionsJson);
     let currentQuestionIndex = 0;
@@ -19,7 +18,11 @@
 
     function displayQuestion(index) {
         var questionDiv = document.getElementById('question');
+        
         questionDiv.innerHTML = '<h3>' + questions[index].Text + '</h3>';
+        if (questions[index].WithImg) {
+            questionDiv.innerHTML += '<img class="question-image" src="/questionImages/' + questions[index].Id + '.jpg" alt="question photo" />';
+        }
         questions[index].AnswerOptions.forEach(function (option) {
             let checked = '';
             if (questions[index].HasManyAnswers) {
@@ -77,7 +80,7 @@
         }
     }
     function finishTest() {
-        saveAnswer(); 
+        saveAnswer();
 
         let ajaxUrl = '';
         $.ajax({
@@ -85,7 +88,7 @@
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(answers.filter(function (answer) {
-                return answer !== undefined; 
+                return answer !== undefined;
             })),
             success: function (response) {
                 console.log('Answers submitted successfully');

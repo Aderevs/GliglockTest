@@ -11,6 +11,9 @@ namespace GliglockTest.DbLogic
         public string? Text { get; set; }
 
         [Required]
+        public bool WithImg { get; set; }
+
+        [Required]
         public Guid TestId { get; set; }
         public Test? Test { get; set; }
         public List<AnswerOption>? AnswerOptions { get; set; }
