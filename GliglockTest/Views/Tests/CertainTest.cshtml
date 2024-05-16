@@ -19,8 +19,8 @@
 
     function displayQuestion(index) {
         var questionDiv = document.getElementById('question');
-        questionDiv.innerHTML = '<h3>' + questions[index].QuestionText + '</h3>';
-        questions[index].Options.forEach(function (option) {
+        questionDiv.innerHTML = '<h3>' + questions[index].Text + '</h3>';
+        questions[index].AnswerOptions.forEach(function (option) {
             let checked = '';
             if (questions[index].HasManyAnswers) {
 
@@ -28,13 +28,13 @@
                     checked = 'checked';
 
                 }
-                questionDiv.innerHTML += '<br> <input type="checkbox" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].QuestionText + '" ' + checked + ' />';
+                questionDiv.innerHTML += '<br> <input type="checkbox" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].Text + '" ' + checked + ' />';
             } else {
 
                 if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Id)) {
                     checked = 'checked';
                 }
-                questionDiv.innerHTML += '<br> <input type="radio" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].QuestionText + '" ' + checked + ' />';
+                questionDiv.innerHTML += '<br> <input type="radio" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].Text + '" ' + checked + ' />';
             }
             questionDiv.innerHTML += ' <label for="' + option.Id + '">' + option.Content + '</label> <br> '
         })

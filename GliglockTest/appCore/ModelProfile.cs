@@ -28,6 +28,7 @@ namespace GliglockTest.appCore
             CreateMap<DbLogic.Question, Question>();
             CreateMap<DbLogic.AnswerOption, AnswerOption>();
 
+            CreateMap<DbLogic.Student, Models.StudentView>();
         }
     }
 }

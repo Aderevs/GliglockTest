@@ -6,21 +6,28 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 
 namespace GliglockTest.Controllers
 {
     public class AccountController : Controller
     {
         private readonly TestsDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public AccountController(TestsDbContext dbContext)
+        public AccountController(TestsDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
-        public IActionResult Index()
+        [Authorize]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var studentDb = await _dbContext.Students.FirstAsync(s => s.Email == User.Identity.Name);
+            var student = _mapper.Map<StudentView>(studentDb);
+            return View(student);
         }
 
         public IActionResult SignUp()
@@ -48,7 +55,7 @@ namespace GliglockTest.Controllers
                     _dbContext.Students.Add(newUser);
                     await _dbContext.SaveChangesAsync();
                     await SignInAsync(newUser);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Account");
                 }
                 else
                 {

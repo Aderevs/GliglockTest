@@ -1,0 +1,17 @@
+﻿@model GliglockTest.Models.BaseUserView
+
+<h1>Welcome @Model.FirstName</h1>
+<h4>First name: @Model.FirstName</h4>
+<h4>Last name: @Model.LastName</h4>
+<h4>Email: @Model.Email</h4>
+@if(Model.BirthDay != null)
+{
+    <h4>Birthday: @Model.BirthDay</h4>
+}
+
+<div>
+    <a asp-action="SignIn">Switch an account</a>
+    <br />
+    <a asp-action="SignOut">SignOut</a>
+</div>
+
