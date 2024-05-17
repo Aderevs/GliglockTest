@@ -139,23 +139,31 @@ namespace GliglockTest.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTest(appCore.Test testModel)
         {
-            if (testModel == null)
+            if (ModelState.IsValid)
             {
-                throw new ArgumentNullException(nameof(testModel));
-            }
-            if (testModel.Questions.Any(q => q.AnswerOptions.Count == 0))
-            {
-                ModelState.AddModelError("", "Each Question must has at least one correct answer");
-                return View();
-            }
-            testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
+                if (testModel == null)
+                {
+                    throw new ArgumentNullException(nameof(testModel));
+                }
+                if (testModel.Questions.Any(q => q.AnswerOptions.Count(ao=>ao.IsCorrect) == 0))
+                {
+                    ModelState.AddModelError("", "Each Question must has at least one correct answer");
+                    return View(testModel);
+                }
+                testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
 
 
-            var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
-            TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
-            await teacher.CreateTest(testModel);
-            await RefillLocalTests();
-            return Ok();
+                var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+                TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
+                await teacher.CreateTest(testModel);
+                await RefillLocalTests();
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return View(testModel);
+            }
+
         }
 
         private bool UploadImage(IFormFile image, string name)

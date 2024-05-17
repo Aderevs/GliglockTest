@@ -44,10 +44,11 @@ $(document).ready(function () {
                         <label for="Questions[${questionIndex}].Text"><b>Question ${questionIndex + 1}</b></label>
                         <input type="text" name="Questions[${questionIndex}].Text" class="form-control" />
                         <input type="hidden" name="Questions[${questionIndex}].Id" value="${generateGUID()}" />
+                        <button type="button" class="btn btn-danger removeQuestion">Delete question</button>
+                        <br />
                         <br />
                         <label for="Questions[0].Image">Add image (.jpg only)</label>
                         <input type="file" id="Questions[0].Image" name="Questions[${questionIndex}].Image" class="form-control" accept=".jpg" />
-                        <button type="button" class="btn btn-danger removeQuestion">Delete question</button>
                     </div>
 
                         <div class="answers">
