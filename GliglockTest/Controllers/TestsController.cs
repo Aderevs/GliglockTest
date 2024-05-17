@@ -14,7 +14,14 @@ namespace GliglockTest.Controllers
         private readonly IMapper _mapper;
         private static List<appCore.Test>? _tests;
 
-
+        private async Task RefillLocalTests()
+        {
+            var allTestsDb = await _dbContext.Tests
+                .Include(t => t.Questions)
+                .ThenInclude(q => q.AnswerOptions)
+                .ToListAsync();
+            _tests = _mapper.Map<List<appCore.Test>>(allTestsDb);
+        }
         public TestsController(TestsDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
@@ -31,17 +38,13 @@ namespace GliglockTest.Controllers
             return View(_tests);
         }
 
-        public async Task<IActionResult> CertainTest(Guid id)
+        public async Task<IActionResult> CertainTest(Guid testId)
         {
             if (_tests == null)
             {
-                var allTestsDb = await _dbContext.Tests
-                .Include(t => t.Questions)
-                .ThenInclude(q => q.AnswerOptions)
-                .ToListAsync();
-                _tests = _mapper.Map<List<appCore.Test>>(allTestsDb);
+                RefillLocalTests();
             }
-            var test = _tests.First(t => t.Id == id);
+            var test = _tests.First(t => t.Id == testId);
             return View(test);
         }
 
@@ -114,7 +117,7 @@ namespace GliglockTest.Controllers
 
         [HttpPost]
         public async Task<IActionResult> CreateTest(appCore.Test testModel)
-        {
+            {
             if (testModel == null)
             {
                 throw new ArgumentNullException(nameof(testModel));
@@ -127,6 +130,7 @@ namespace GliglockTest.Controllers
             var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
             TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
             await teacher.CreateTest(testModel);
+            await RefillLocalTests();
             return Ok();
         }
     }

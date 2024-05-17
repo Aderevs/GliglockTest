@@ -28,3 +28,9 @@ body {
 .question-image{
     height: 150px;
 }
+.max-mark-input{
+    margin-top:5px;
+}
+.answers {
+    margin-top: 20px;
+}

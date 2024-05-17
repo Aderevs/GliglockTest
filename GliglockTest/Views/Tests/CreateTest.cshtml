@@ -3,70 +3,72 @@
 <h2>Test creating</h2>
 
 <form asp-action="CreateTest" method="post">
-    <div>
+    <div class="form-group">
         <label asp-for="Name">Test name</label>
         <input asp-for="Name" class="form-control" />
-        <div asp-validation-summary="ModelOnly"></div>
+        <div class="max-mark-input">
+            <label asp-for="MaxMark">Maximal mark</label>
+            <input asp-for="MaxMark" />
+            <div asp-validation-summary="ModelOnly"></div>
+        </div>
+        <input type="hidden" name="Id" id="TestId" value="" />
     </div>
+
 
     <div id="questions">
         <h3>Questions</h3>
         <div class="question">
             <input type="hidden" id="0" class="question-index" />
 
-
-            <label for="Questions[0].Text"><b>Question 1</b></label>
-            <input type="text" name="Questions[0].Text" class="form-control" />
+            <div class="form-group">
+                <label for="Questions[0].Text"><b>Question 1</b></label>
+                <input type="text" id="Questions[0].Text" name="Questions[0].Text" class="form-control" />
+                <input type="hidden" name="Questions[0].Id" id="QuestionId"  />
+            </div>
 
             <div class="answers">
                 <div class="form-group">
-                    <label asp-for="Questions[0].AnswerOptions[0].Content">Option</label>
-                    <input type="text" name="Questions[0].AnswerOptions[0].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[0].Content">Option</label>
+                    <input type="text" id="Questions[0].AnswerOptions[0].Content" name="Questions[0].AnswerOptions[0].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[0].IsCorrect">
+                        <input type="checkbox" id="Questions[0].AnswerOptions[0].IsCorrect" name="Questions[0].AnswerOptions[0].IsCorrect" value="true" /> Correct
+                    </label>
+                    <input type="hidden" name="Questions[0].AnswerOptions[0].Id" class="AnswerId"  />
                 </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label for="Questions[0].AnswerOptions[0].IsCorrect">
-                            <input type="checkbox" id="Questions[0].AnswerOptions[0].IsCorrect" name="Questions[0].AnswerOptions[0].IsCorrect" /> Correct
-                        </label>
-                    </div>
-                </div>
+                
                 <br />
 
                 <div class="form-group">
-                    <label asp-for="Questions[0].AnswerOptions[1].Content">Option</label>
-                    <input type="text" name="Questions[0].AnswerOptions[1].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[1].Content">Option</label>
+                    <input type="text" id="Questions[0].AnswerOptions[1].Content" name="Questions[0].AnswerOptions[1].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[1].IsCorrect">
+                        <input type="checkbox" id="Questions[0].AnswerOptions[1].IsCorrect" name="Questions[0].AnswerOptions[1].IsCorrect" value="true" /> Correct
+                    </label>
+                    <input type="hidden" name="Questions[0].AnswerOptions[1].Id" class="AnswerId"  />
                 </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label for="Questions[0].AnswerOptions[1].IsCorrect">
-                            <input type="checkbox" id="Questions[0].AnswerOptions[1].IsCorrect" name="Questions[0].AnswerOptions[1].IsCorrect" value="true"/> Correct
-                        </label>
-                    </div>
-                </div>
+               
                 <br />
 
                 <div class="form-group">
-                    <label asp-for="Questions[0].AnswerOptions[2].Content">Option</label>
-                    <input type="text" name="Questions[0].AnswerOptions[2].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[2].Content">Option</label>
+                    <input type="text" id="Questions[0].AnswerOptions[2].Content" name="Questions[0].AnswerOptions[2].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[2].IsCorrect">
+                        <input type="checkbox" id="Questions[0].AnswerOptions[2].IsCorrect" name="Questions[0].AnswerOptions[2].IsCorrect" value="true" /> Correct
+                    </label>
+                    <input type="hidden" name="Questions[0].AnswerOptions[2].Id" class="AnswerId"  />
                 </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label for="Questions[0].AnswerOptions[2].IsCorrect">
-                            <input type="checkbox" id="Questions[0].AnswerOptions[2].IsCorrect" name="Questions[0].AnswerOptions[2].IsCorrect" /> Correct
-                        </label>
-                    </div>
-                </div>
+                
                 <br />
 
                 <div class="form-group">
-                    <label asp-for="Questions[0].AnswerOptions[3].Content">Option</label>
-                    <input type="text" name="Questions[0].AnswerOptions[3].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[3].Content">Option</label>
+                    <input type="text" id="Questions[0].AnswerOptions[3].Content" name="Questions[0].AnswerOptions[3].Content" class="form-control" />
+                    <label for="Questions[0].AnswerOptions[3].IsCorrect">
+                        <input type="checkbox" id="Questions[0].AnswerOptions[3].IsCorrect" name="Questions[0].AnswerOptions[3].IsCorrect" value="true" /> Correct
+                    </label>
+                    <input type="hidden" name="Questions[0].AnswerOptions[3].Id" class="AnswerId"  />
                 </div>
-                <div class="form-group">
-                    <div class="checkbox">
-                        <input type="checkbox" name="Questions[3].AnswerOptions[3].IsCorrect" /> Correct
-                    </div>
-                </div>
+                
                 <br />
 
                 <!-- Other answer options -->
@@ -79,6 +81,7 @@
     <button id="addQuestion" type="button" class="btn btn-secondary">Add question</button>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
 <script src="~/js/site.js"></script>
 
 
