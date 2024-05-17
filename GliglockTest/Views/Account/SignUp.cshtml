@@ -36,7 +36,16 @@
             <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
         </div>
         <br />
-        <a asp-action="SignIn">I already have an account Sign In</a>
+        <label>I am...</label>
+        <div>
+            <input type="radio" asp-for="IsTeacher" value="false" checked /> Student
+            <input type="radio" asp-for="IsTeacher" value="true" /> Teacher
+        </div>
+        <br />
+        <div>
+            I already have an account
+            <a asp-action="SignIn"> Sign In</a>
+        </div>
         <br />
         <br />
         <div class="form-group">

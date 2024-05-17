@@ -16,8 +16,19 @@
             <input asp-for="Password" class="form-control" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <br />
-        <a asp-action="SignUp">I don't have an account yet. Register</a>
+        <label>I am...</label>
+        <div>
+            <input type="radio" asp-for="IsTeacher" value="false" checked /> Student
+            <input type="radio" asp-for="IsTeacher" value="true" /> Teacher
+        </div>
+        <br />
+        <div>
+            I don't have an account yet.
+            <a asp-action="SignUp">Register</a>
+        </div>
+        
         <br />
         <br />
         <div class="form-group">

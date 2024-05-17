@@ -10,6 +10,9 @@ namespace GliglockTest.Models
         public string Email { get; set; }
 
         [Required]
+        public bool IsTeacher { get; set; }
+
+        [Required]
         [UIHint("Password")]
         public string Password { get; set; }
     }
