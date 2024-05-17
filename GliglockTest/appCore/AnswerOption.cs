@@ -1,4 +1,6 @@
-﻿namespace GliglockTest.appCore
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GliglockTest.appCore
 {
     public class AnswerOption
     {

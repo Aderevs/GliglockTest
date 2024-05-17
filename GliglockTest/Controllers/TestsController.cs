@@ -3,10 +3,8 @@ using GliglockTest.DbLogic;
 using GliglockTest.appCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Protocols.Configuration;
+using GliglockTest.appCore.Account;
 
 namespace GliglockTest.Controllers
 {
@@ -46,7 +44,6 @@ namespace GliglockTest.Controllers
             var test = _tests.First(t => t.Id == id);
             return View(test);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid TestId)
@@ -94,7 +91,7 @@ namespace GliglockTest.Controllers
             return View("Results", passedTest);
         }
 
-        [Authorize]
+        [Authorize(Roles ="Student")]
         public async Task<IActionResult> PassedTests()
         {
             var email = User.Identity.Name;
@@ -108,7 +105,29 @@ namespace GliglockTest.Controllers
 
             return View(passedTests);
         }
+
+        [Authorize(Roles ="Teacher")]
+        public async Task<IActionResult> CreateTest()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTest(appCore.Test testModel)
+        {
+            if (testModel == null)
+            {
+                throw new ArgumentNullException(nameof(testModel));
+            }
+            if(testModel.Questions.Any(q => q.AnswerOptions.Count == 0))
+            {
+                ModelState.AddModelError("", "Each Question must has at least one correct answer");
+                return View();
+            }
+            var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+            TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
+            await teacher.CreateTest(testModel);
+            return Ok();
+        }
     }
-
-
 }

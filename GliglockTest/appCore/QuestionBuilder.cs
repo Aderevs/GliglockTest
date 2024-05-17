@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace GliglockTest.appCore
+﻿namespace GliglockTest.appCore
 {
     public class QuestionBuilder : IQuestionBuilder
     {

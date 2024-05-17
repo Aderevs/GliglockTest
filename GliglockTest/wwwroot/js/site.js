@@ -2,64 +2,142 @@
 //// for details on configuring this project to bundle and minify static web assets.
 
 //// Write your JavaScript code.
-//let questions = @Html.Raw(questionsJson);
-//let currentQuestionIndex = 0;
-//let answers = [];
+
+$(document).ready(function () {
+    let questionIndex = 0;
+    let optionIndexes = [3]
+    //let answerIndex = 0;
+
+    $('#addQuestion').click(function () {
+        questionIndex++;
+        optionIndexes.push(3);
+        $('#questions').append(`
+                    <div class="question">
+                    <input type="hidden" id="${questionIndex}" class="question-index" />
+                    <br />
+                    <br />
+                        <label for="Questions[${questionIndex}].Text"><b>Question ${questionIndex + 1}</b></label>
+                        <input type="text" name="Questions[${questionIndex}].Text" class="form-control" />
+                        <button type="button" class="btn btn-danger removeQuestion">Delete question</button>
+
+                        <div class="answers">
+                            <label for="Questions[${questionIndex}].AnswerOptions[0].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[0].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[0].IsCorrect" /> Correct
+                            <br />
+
+                            <label for="Questions[${questionIndex}].AnswerOptions[1].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[1].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[1].IsCorrect" /> Correct
+                            <br />
+                            
+                            <label for="Questions[${questionIndex}].AnswerOptions[2].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[2].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[2].IsCorrect" /> Correct
+                            <br />
+                            
+                            <label for="Questions[${questionIndex}].AnswerOptions[3].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[3].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[3].IsCorrect" /> Correct
+                            <br />
 
 
-//function displayQuestion(index) {
-//    var questionDiv = document.getElementById('question');
-//    questionDiv.innerHTML = '<h3>' + questions[index].QuestionText + '</h3>';
-//    questions[index].Options.forEach(function (option) {
-//        let checked = '';
-//        if (questions[index].HasManyAnswers) {
-//            if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Content)) {
-//                checked = 'checked';
-//            }
-//            questionDiv.innerHTML += '<br> <input type="checkbox" id="' + option.Id + '" value="' + option.Content + ' name="' + questions[index].QuestionText + '" ' + checked + '/>';
-//        } else {
-//            if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option)) {
-//                checked = 'checked';
-//            }
-//            questionDiv.innerHTML += '<br> <input type="radio" id="' + option.Id + '" value="' + option.Content + ' name="' + questions[index].QuestionText + '" ' + checked + '/>';
-//        }
-//        questionDiv.innerHTML += ' <label for="' + option.Id + '">' + option.Content + '</label> <br> '
-//    })
+                            <!-- Повторити для інших відповідей -->
+                        </div>
+                        <button type="button" class="btn btn-secondary addAnswer">Add option</button>
+                    </div>
+                `);
+    });
 
-//}
+    $('#questions').on('click', '.addAnswer', function () {
+        let parent = $(this).closest('.question');
+        let currentQuestionIndex = parent.find('.question-index').attr('id');
+        let answerIndex = ++optionIndexes[currentQuestionIndex];
+        parent.find('.answers').append(`
+                    <div class="answer">
+                        <label for="Questions[${questionIndex}].AnswerOptions[${answerIndex}].Content">Option</label>
+                        <input type="text" name="Questions[${questionIndex}].AnswerOptions[${answerIndex}].Content" class="form-control" />
+                        <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[${answerIndex}].IsCorrect" /> Correct
+                        <button type="button" class="btn btn-danger removeAnswer">Delete option</button>
+                    </div>
+                `);
+    });
+    $('#questions').on('click', '.removeAnswer', function () {
+        $(this).closest('.answer').remove();
+    });
+    $('#questions').on('click', '.removeQuestion', function () {
+        $(this).closest('.question').remove();
+    });
+});
 
-//displayQuestion(currentQuestionIndex);
-//function saveAnswer() {
-//    let selectedOptions = [];
-//    let currentQuestion = questions[currentQuestionIndex];
 
-//    if (currentQuestion.HasManyAnswers) {
-//        let checkboxes = document.querySelectorAll('.question input[type="checkbox"]:checked');
-//        checkboxes.forEach(function (checkbox) {
-//            selectedOptions.push(checkbox.value);
-//        });
-//    } else {
-//        let radio = document.querySelector('.question input[type="radio"]:checked');
-//        if (radio) {
-//            selectedOptions.push(radio.value);
-//        }
-//    }
+/*$(document).ready(function () {
+    let questionIndex = 0;
+    let answerIndices = {};
 
-//    answers[currentQuestionIndex] = { questionId: currentQuestion.Id, selectedOptions: selectedOptions };
-//}
+    $('#addQuestion').click(function () {
+        questionIndex++;
+        answerIndices[questionIndex] = 0;  // Ініціалізуємо індекс для відповідей нового питання
+        $('#questions').append(`
+                 <div class="question">
+                    <br />
+                    <br />
+                        <label for="Questions[${questionIndex}].Text"><b>Question ${questionIndex + 1}</b></label>
+                        <input type="text" name="Questions[${questionIndex}].Text" class="form-control" />
+                        <button type="button" class="btn btn-danger removeQuestion">Delete question</button>
 
-//function nextQuestion() {
-//    saveAnswer();
-//    if (currentQuestionIndex < questions.length - 1) {
-//        currentQuestionIndex++;
-//        displayQuestion(currentQuestionIndex);
-//    }
-//}
+                        <div class="answers">
+                            <label for="Questions[${questionIndex}].AnswerOptions[0].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[0].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[0].IsCorrect" /> Correct
+                            <br />
 
-//function previousQuestion() {
-//    saveAnswer();
-//    if (currentQuestionIndex > 0) {
-//        currentQuestionIndex--;
-//        displayQuestion(currentQuestionIndex);
-//    }
-//}
+                            <label for="Questions[${questionIndex}].AnswerOptions[1].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[1].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[1].IsCorrect" /> Correct
+                            <br />
+                            
+                            <label for="Questions[${questionIndex}].AnswerOptions[2].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[2].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[2].IsCorrect" /> Correct
+                            <br />
+                            
+                            <label for="Questions[${questionIndex}].AnswerOptions[3].Content">Option</label>
+                            <input type="text" name="Questions[${questionIndex}].AnswerOptions[3].Content" class="form-control" />
+                            <input type="checkbox" name="Questions[${questionIndex}].AnswerOptions[4].IsCorrect" /> Correct
+                            <br />
+
+
+                            <!-- Повторити для інших відповідей -->
+                        </div>
+                    <button type="button" class="btn btn-secondary addAnswer">Add option</button>
+                </div>
+            `);
+    });
+
+    $('#questions').on('click', '.addAnswer', function () {
+        let parent = $(this).closest('.question');
+        let qIndex = parent.index();  // Отримуємо індекс питання в списку
+        answerIndices[qIndex]++;
+        let aIndex = answerIndices[qIndex];
+
+        parent.find('.answers').append(`
+                <div class="answer">
+                    <label for="Questions[${qIndex}].AnswerOptions[${aIndex}].Content">Option</label>
+                    <input type="text" name="Questions[${qIndex}].AnswerOptions[${aIndex}].Content" class="form-control" />
+                    <input type="checkbox" name="Questions[${qIndex}].AnswerOptions[${aIndex}].IsCorrect" /> Correct
+                    <button type="button" class="btn btn-danger removeAnswer">Delete option</button>
+                </div>
+            `);
+    });
+
+    $('#questions').on('click', '.removeAnswer', function () {
+        $(this).closest('.answer').remove();
+    });
+
+    $('#questions').on('click', '.removeQuestion', function () {
+        let qIndex = $(this).closest('.question').index();
+        delete answerIndices[qIndex];
+        $(this).closest('.question').remove();
+    });
+});*/

@@ -1,0 +1,84 @@
+﻿@model GliglockTest.appCore.Test
+
+<h2>Test creating</h2>
+
+<form asp-action="CreateTest" method="post">
+    <div>
+        <label asp-for="Name">Test name</label>
+        <input asp-for="Name" class="form-control" />
+        <div asp-validation-summary="ModelOnly"></div>
+    </div>
+
+    <div id="questions">
+        <h3>Questions</h3>
+        <div class="question">
+            <input type="hidden" id="0" class="question-index" />
+
+
+            <label for="Questions[0].Text"><b>Question 1</b></label>
+            <input type="text" name="Questions[0].Text" class="form-control" />
+
+            <div class="answers">
+                <div class="form-group">
+                    <label asp-for="Questions[0].AnswerOptions[0].Content">Option</label>
+                    <input type="text" name="Questions[0].AnswerOptions[0].Content" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label for="Questions[0].AnswerOptions[0].IsCorrect">
+                            <input type="checkbox" id="Questions[0].AnswerOptions[0].IsCorrect" name="Questions[0].AnswerOptions[0].IsCorrect" /> Correct
+                        </label>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <label asp-for="Questions[0].AnswerOptions[1].Content">Option</label>
+                    <input type="text" name="Questions[0].AnswerOptions[1].Content" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label for="Questions[0].AnswerOptions[1].IsCorrect">
+                            <input type="checkbox" id="Questions[0].AnswerOptions[1].IsCorrect" name="Questions[0].AnswerOptions[1].IsCorrect" value="true"/> Correct
+                        </label>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <label asp-for="Questions[0].AnswerOptions[2].Content">Option</label>
+                    <input type="text" name="Questions[0].AnswerOptions[2].Content" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label for="Questions[0].AnswerOptions[2].IsCorrect">
+                            <input type="checkbox" id="Questions[0].AnswerOptions[2].IsCorrect" name="Questions[0].AnswerOptions[2].IsCorrect" /> Correct
+                        </label>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <label asp-for="Questions[0].AnswerOptions[3].Content">Option</label>
+                    <input type="text" name="Questions[0].AnswerOptions[3].Content" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <input type="checkbox" name="Questions[3].AnswerOptions[3].IsCorrect" /> Correct
+                    </div>
+                </div>
+                <br />
+
+                <!-- Other answer options -->
+            </div>
+            <button type="button" class="btn btn-secondary addAnswer">Add option</button>
+        </div>
+        <!-- Other questions -->
+    </div>
+    <br />
+    <button id="addQuestion" type="button" class="btn btn-secondary">Add question</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<script src="~/js/site.js"></script>
+
+

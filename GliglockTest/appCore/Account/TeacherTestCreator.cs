@@ -18,6 +18,19 @@ namespace GliglockTest.appCore.Account
             _testBuilder.OnTestBuilt += CreateTest;
             _dbAdapter = new DbModelAdapter(dbContext, _mapper);
         }
+        public TeacherTestCreator(TestsDbContext dbContext, IMapper mapper, DbLogic.Teacher teacherDb) : base(dbContext)
+        {
+            _mapper = mapper;
+            _testBuilder = new TestBuilder();
+            _testBuilder.OnTestBuilt += CreateTest;
+            _dbAdapter = new DbModelAdapter(dbContext, _mapper);
+
+            Id = teacherDb.Id;
+            FirstName = teacherDb.FirstName;
+            LastName = teacherDb.LastName;
+            Email = teacherDb.Email;
+            BirthDay = teacherDb.BirthDay;
+        }
         public ITestBuilder CreateTestWithBuilder(string name)
         {
             _testBuilder.Clear();
