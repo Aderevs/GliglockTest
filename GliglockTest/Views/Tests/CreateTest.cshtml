@@ -2,7 +2,7 @@
 
 <h2>Test creating</h2>
 
-<form asp-action="CreateTest" method="post">
+<form asp-action="CreateTest" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="Name">Test name</label>
         <input asp-for="Name" class="form-control" />
@@ -23,6 +23,9 @@
             <div class="form-group">
                 <label for="Questions[0].Text"><b>Question 1</b></label>
                 <input type="text" id="Questions[0].Text" name="Questions[0].Text" class="form-control" />
+                <br />
+                <label for="Questions[0].Image">Add image (.jpg only)</label>
+                <input type="file" id="Questions[0].Image" name="Questions[0].Image" class="form-control" accept=".jpg" />
                 <input type="hidden" name="Questions[0].Id" id="QuestionId"  />
             </div>
 

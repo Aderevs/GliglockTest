@@ -52,7 +52,7 @@ namespace GliglockTest.Controllers
         public async Task<IActionResult> SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid TestId)
         {
             appCore.PassedTest passedTest = new appCore.PassedTest();
-            
+
             passedTest.Test = _tests.First(t => t.Id == TestId);
             if (answers == null)
             {
@@ -79,8 +79,8 @@ namespace GliglockTest.Controllers
             {
                 appCore.Account.StudentTestTaker student = new(_dbContext, _mapper);
                 var studentDb = await _dbContext.Students
-                    .Include(s=>s.PassedTests)
-                    .ThenInclude(pt=>pt.Test)
+                    .Include(s => s.PassedTests)
+                    .ThenInclude(pt => pt.Test)
                     .FirstAsync(s => s.Email == User.Identity.Name);
                 student.Id = studentDb.Id;
                 student.Email = studentDb.Email;
@@ -94,7 +94,7 @@ namespace GliglockTest.Controllers
             return View("Results", passedTest);
         }
 
-        [Authorize(Roles ="Student")]
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> PassedTests()
         {
             var email = User.Identity.Name;
@@ -109,7 +109,7 @@ namespace GliglockTest.Controllers
             return View(passedTests);
         }
 
-        [Authorize(Roles ="Teacher")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> CreateTest()
         {
             return View();
@@ -117,21 +117,44 @@ namespace GliglockTest.Controllers
 
         [HttpPost]
         public async Task<IActionResult> CreateTest(appCore.Test testModel)
-            {
+        {
             if (testModel == null)
             {
                 throw new ArgumentNullException(nameof(testModel));
             }
-            if(testModel.Questions.Any(q => q.AnswerOptions.Count == 0))
+            if (testModel.Questions.Any(q => q.AnswerOptions.Count == 0))
             {
                 ModelState.AddModelError("", "Each Question must has at least one correct answer");
                 return View();
             }
+            testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
+
+
             var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
             TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
             await teacher.CreateTest(testModel);
             await RefillLocalTests();
             return Ok();
+        }
+
+        private bool UploadImage(IFormFile image, string name)
+        {
+            if (image == null) return false;
+
+            var ImagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "questionImages");
+
+            if (!Directory.Exists(ImagesFolder))
+            {
+                Directory.CreateDirectory(ImagesFolder);
+            }
+
+            var filePath = Path.Combine(ImagesFolder, name + ".jpg");
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                image.CopyTo(fileStream);
+            }
+
+            return true;
         }
     }
 }

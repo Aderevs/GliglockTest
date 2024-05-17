@@ -49,3 +49,7 @@ UPDATE Questions
 SET
 WithImg = 0
 WHERE Id='00000000-0000-0000-0000-000000000001'
+
+DELETE
+FROM Tests
+WHERE Name IN ('test with image', 'test test')

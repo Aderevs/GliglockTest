@@ -3,21 +3,6 @@
 
 //// Write your JavaScript code.
 
-//import { v4 as uuidv4 } from 'uuid';
-
-
-
-
-
-//const testUuid = uuidv4();
-//console.log(testUuid);
-//const questionUuid = uuidv4();
-
-//const answerUuids = [uuidv4(), uuidv4(), uuidv4(), uuidv4()];
-//const answer1Uuid = uuidv4();
-//const answer2Uuid = uuidv4();
-//const answer3Uuid = uuidv4();
-//const answer4Uuid = uuidv4();
 
 function generateGUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -25,22 +10,6 @@ function generateGUID() {
         return v.toString(16);
     });
 }
-//const testUuid = generateGUID();
-//console.log(generateGUID());
-//const questionUuid = generateGUID();
-
-//const answerUuids = [generateGUID(), generateGUID(), generateGUID(), generateGUID()];
-//const testIdInput = document.getElementById('TestId');
-//testIdInput.setAttribute('value', testUuid);
-
-//const questionIdInput = document.getElementsByClassName('QuestionId');
-//questionIdInput.setAttribute('value', questionUuid);
-
-//const answerIdInputs = document.getElementsByClassName('AnswerId');
-//for (let i = 0; i < 4; i++) {
-//    answerIdInputs[i].setAttribute('value', answerUuids[i]);
-//}
-
 
 
 $(document).ready(function () {
@@ -75,6 +44,9 @@ $(document).ready(function () {
                         <label for="Questions[${questionIndex}].Text"><b>Question ${questionIndex + 1}</b></label>
                         <input type="text" name="Questions[${questionIndex}].Text" class="form-control" />
                         <input type="hidden" name="Questions[${questionIndex}].Id" value="${generateGUID()}" />
+                        <br />
+                        <label for="Questions[0].Image">Add image (.jpg only)</label>
+                        <input type="file" id="Questions[0].Image" name="Questions[${questionIndex}].Image" class="form-control" accept=".jpg" />
                         <button type="button" class="btn btn-danger removeQuestion">Delete question</button>
                     </div>
 
