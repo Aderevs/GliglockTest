@@ -7,6 +7,14 @@
             <a asp-action="CertainTest" asp-route-testId="@test.Id">
                 @test.Name
             </a>
+            <br />
         }
     </div>
+@if (User.IsInRole("Teacher"))
+{
+    <br />
+    <a asp-action="CreateTest" class="btn btn-outline-primary">
+        Add new test +
+    </a>
+}
 

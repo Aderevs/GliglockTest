@@ -16,7 +16,7 @@ namespace GliglockTest.appCore
             _test.Name = name;
             return this;
         }
-        public TestBuilder SetMaxMark(int maxMark)
+        public TestBuilder SetMaxMark(ushort maxMark)
         {
             _test.MaxMark = maxMark;
             return this;

@@ -1,106 +1,131 @@
 ﻿@model GliglockTest.appCore.Test;
-@{
-    var questionsJson = System.Text.Json.JsonSerializer.Serialize(Model.Questions);
+
+
+@if (User.IsInRole("Teacher"))
+{
+    <h3>@Model.Name</h3>
+    foreach(var question in Model.Questions)
+    {
+        <h5>@question.Text</h5>
+        if (question.WithImg)
+        {
+            string imgPath = $"/questionImages/{question.Id}.jpg";
+            <img src="@imgPath" class="question-image" />
+        }
+        foreach(var option in question.AnswerOptions)
+        {
+            if (option.IsCorrect)
+            {
+                <div class="correct-answer">@option.Content</div>
+            }
+            else
+            {
+                <div>@option.Content</div>
+            }
+        }
+    }
 }
+else
+{
+    var questionsJson = System.Text.Json.JsonSerializer.Serialize(Model.Questions);
 
-<div id="testing-page">
-    <div id="question" class="question"></div>
-    <button onclick="previousQuestion()">Попереднє</button>
-    <button onclick="nextQuestion()">Наступне</button>
-    <button onclick="finishTest()">Finish Test</button>
-</div>
+    <div id="testing-page">
+        <div id="question" class="question"></div>
+        <button onclick="previousQuestion()">Попереднє</button>
+        <button onclick="nextQuestion()">Наступне</button>
+        <button onclick="finishTest()">Finish Test</button>
+    </div>
 
-<script>
-    let questions = @Html.Raw(questionsJson);
-    let currentQuestionIndex = 0;
-    let answers = [];
+    <script>
+        let questions = @Html.Raw(questionsJson);
+        let currentQuestionIndex = 0;
+        let answers = [];
 
 
-    function displayQuestion(index) {
-        var questionDiv = document.getElementById('question');
-        
-        questionDiv.innerHTML = '<h3>' + questions[index].Text + '</h3>';
-        if (questions[index].WithImg) {
-            questionDiv.innerHTML += '<img class="question-image" src="/questionImages/' + questions[index].Id + '.jpg" alt="question photo" />';
-        }
-        questions[index].AnswerOptions.forEach(function (option) {
-            let checked = '';
-            if (questions[index].HasManyAnswers) {
+        function displayQuestion(index) {
+            var questionDiv = document.getElementById('question');
 
-                if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Id)) {
-                    checked = 'checked';
+            questionDiv.innerHTML = '<h3>' + questions[index].Text + '</h3>';
+            if (questions[index].WithImg) {
+                questionDiv.innerHTML += '<img class="question-image" src="/questionImages/' + questions[index].Id + '.jpg" alt="question photo" />';
+            }
+            questions[index].AnswerOptions.forEach(function (option) {
+                let checked = '';
+                if (questions[index].HasManyAnswers) {
 
+                    if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Id)) {
+                        checked = 'checked';
+
+                    }
+                    questionDiv.innerHTML += '<br> <input type="checkbox" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].Text + '" ' + checked + ' />';
+                } else {
+
+                    if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Id)) {
+                        checked = 'checked';
+                    }
+                    questionDiv.innerHTML += '<br> <input type="radio" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].Text + '" ' + checked + ' />';
                 }
-                questionDiv.innerHTML += '<br> <input type="checkbox" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].Text + '" ' + checked + ' />';
+                questionDiv.innerHTML += ' <label for="' + option.Id + '">' + option.Content + '</label> <br> '
+            })
+
+        }
+
+        displayQuestion(currentQuestionIndex);
+        function saveAnswer() {
+            let selectedOptions = [];
+            let currentQuestion = questions[currentQuestionIndex];
+
+            if (currentQuestion.HasManyAnswers) {
+                let checkboxes = document.querySelectorAll('.question input[type="checkbox"]:checked');
+                checkboxes.forEach(function (checkbox) {
+                    selectedOptions.push(checkbox.id);
+                });
             } else {
-
-                if (answers[currentQuestionIndex] && answers[currentQuestionIndex].selectedOptions.includes(option.Id)) {
-                    checked = 'checked';
+                let radio = document.querySelector('.question input[type="radio"]:checked');
+                if (radio) {
+                    selectedOptions.push(radio.id);
                 }
-                questionDiv.innerHTML += '<br> <input type="radio" id="' + option.Id + '" value="' + option.Content + '" name="' + questions[index].Text + '" ' + checked + ' />';
             }
-            questionDiv.innerHTML += ' <label for="' + option.Id + '">' + option.Content + '</label> <br> '
-        })
 
-    }
+            answers[currentQuestionIndex] = { questionId: currentQuestion.Id, selectedOptions: selectedOptions };
+        }
 
-    displayQuestion(currentQuestionIndex);
-    function saveAnswer() {
-        let selectedOptions = [];
-        let currentQuestion = questions[currentQuestionIndex];
+        function nextQuestion() {
+            saveAnswer();
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            }
+        }
 
-        if (currentQuestion.HasManyAnswers) {
-            let checkboxes = document.querySelectorAll('.question input[type="checkbox"]:checked');
-            checkboxes.forEach(function (checkbox) {
-                selectedOptions.push(checkbox.id);
+        function previousQuestion() {
+            saveAnswer();
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion(currentQuestionIndex);
+            }
+        }
+        function finishTest() {
+            saveAnswer();
+
+            let ajaxUrl = '';
+            $.ajax({
+                url: '/Tests/SubmitAnswers?TestId=@Model.Id',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(answers.filter(function (answer) {
+                    return answer !== undefined;
+                })),
+                success: function (response) {
+                    console.log('Answers submitted successfully');
+                    // Display the HTML response
+                    $('#testing-page').html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error submitting answers: ' + error);
+                }
             });
-        } else {
-            let radio = document.querySelector('.question input[type="radio"]:checked');
-            if (radio) {
-                selectedOptions.push(radio.id);
-            }
+
         }
-
-        answers[currentQuestionIndex] = { questionId: currentQuestion.Id, selectedOptions: selectedOptions };
-    }
-
-    function nextQuestion() {
-        saveAnswer();
-        if (currentQuestionIndex < questions.length - 1) {
-            currentQuestionIndex++;
-            displayQuestion(currentQuestionIndex);
-        }
-    }
-
-    function previousQuestion() {
-        saveAnswer();
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            displayQuestion(currentQuestionIndex);
-        }
-    }
-    function finishTest() {
-        saveAnswer();
-
-        let ajaxUrl = '';
-        $.ajax({
-            url: '/Tests/SubmitAnswers?TestId=@Model.Id',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(answers.filter(function (answer) {
-                return answer !== undefined;
-            })),
-            success: function (response) {
-                console.log('Answers submitted successfully');
-                // Display the HTML response
-                $('#testing-page').html(response);
-            },
-            error: function (xhr, status, error) {
-                console.error('Error submitting answers: ' + error);
-            }
-        });
-
-    }
-</script>
-
-
+    </script>
+}

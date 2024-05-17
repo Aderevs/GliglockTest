@@ -3,10 +3,8 @@ using GliglockTest.DbLogic;
 using GliglockTest.appCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Protocols.Configuration;
+using GliglockTest.appCore.Account;
 
 namespace GliglockTest.Controllers
 {
@@ -16,7 +14,14 @@ namespace GliglockTest.Controllers
         private readonly IMapper _mapper;
         private static List<appCore.Test>? _tests;
 
-
+        private async Task RefillLocalTests()
+        {
+            var allTestsDb = await _dbContext.Tests
+                .Include(t => t.Questions)
+                .ThenInclude(q => q.AnswerOptions)
+                .ToListAsync();
+            _tests = _mapper.Map<List<appCore.Test>>(allTestsDb);
+        }
         public TestsController(TestsDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
@@ -33,26 +38,21 @@ namespace GliglockTest.Controllers
             return View(_tests);
         }
 
-        public async Task<IActionResult> CertainTest(Guid id)
+        public async Task<IActionResult> CertainTest(Guid testId)
         {
             if (_tests == null)
             {
-                var allTestsDb = await _dbContext.Tests
-                .Include(t => t.Questions)
-                .ThenInclude(q => q.AnswerOptions)
-                .ToListAsync();
-                _tests = _mapper.Map<List<appCore.Test>>(allTestsDb);
+                RefillLocalTests();
             }
-            var test = _tests.First(t => t.Id == id);
+            var test = _tests.First(t => t.Id == testId);
             return View(test);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid TestId)
         {
             appCore.PassedTest passedTest = new appCore.PassedTest();
-            
+
             passedTest.Test = _tests.First(t => t.Id == TestId);
             if (answers == null)
             {
@@ -79,8 +79,8 @@ namespace GliglockTest.Controllers
             {
                 appCore.Account.StudentTestTaker student = new(_dbContext, _mapper);
                 var studentDb = await _dbContext.Students
-                    .Include(s=>s.PassedTests)
-                    .ThenInclude(pt=>pt.Test)
+                    .Include(s => s.PassedTests)
+                    .ThenInclude(pt => pt.Test)
                     .FirstAsync(s => s.Email == User.Identity.Name);
                 student.Id = studentDb.Id;
                 student.Email = studentDb.Email;
@@ -94,7 +94,7 @@ namespace GliglockTest.Controllers
             return View("Results", passedTest);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Student")]
         public async Task<IActionResult> PassedTests()
         {
             var email = User.Identity.Name;
@@ -108,7 +108,82 @@ namespace GliglockTest.Controllers
 
             return View(passedTests);
         }
+
+        public async Task<IActionResult> CreatedTests()
+        {
+            var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+            if (_tests == null)
+            {
+                await RefillLocalTests();
+            }
+            var theirTestIds = _tests
+                .Where(t => t.TeacherId == teacherDb.Id)
+                .Select(t => t.Id)
+                .ToList();
+            var passedTestsDb = await _dbContext.PassedTests
+                .Include(pt => pt.Student)
+                .Include(pt => pt.Test)
+                .Where(pt => theirTestIds
+                .Contains(pt.TestId))
+                .ToListAsync();
+            var passedTests = _mapper.Map<List<appCore.PassedTest>>(passedTestsDb);
+            return View(passedTests);
+        }
+
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> CreateTest()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTest(appCore.Test testModel)
+        {
+            if (ModelState.IsValid)
+            {
+                if (testModel == null)
+                {
+                    throw new ArgumentNullException(nameof(testModel));
+                }
+                if (testModel.Questions.Any(q => q.AnswerOptions.Count(ao=>ao.IsCorrect) == 0))
+                {
+                    ModelState.AddModelError("", "Each Question must has at least one correct answer");
+                    return View(testModel);
+                }
+                testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
+
+
+                var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+                TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
+                await teacher.CreateTest(testModel);
+                await RefillLocalTests();
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return View(testModel);
+            }
+
+        }
+
+        private bool UploadImage(IFormFile image, string name)
+        {
+            if (image == null) return false;
+
+            var ImagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "questionImages");
+
+            if (!Directory.Exists(ImagesFolder))
+            {
+                Directory.CreateDirectory(ImagesFolder);
+            }
+
+            var filePath = Path.Combine(ImagesFolder, name + ".jpg");
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                image.CopyTo(fileStream);
+            }
+
+            return true;
+        }
     }
-
-
 }

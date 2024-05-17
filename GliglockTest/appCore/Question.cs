@@ -6,6 +6,8 @@
         public Guid Id { get; set; }
         public string? Text { get; set; }
         public bool WithImg { get; set; }
+
+        public IFormFile Image { get; set; }    
         public List<AnswerOption>? AnswerOptions { get; set; }
         public AnswerOption[] StudentsAnswer
         {

@@ -27,7 +27,7 @@ namespace GliglockTest
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                .AddCookie(options =>
                {
-                   options.LoginPath = "/account/SignUp";
+                   options.LoginPath = "/account/SignIn";
                });
 
             var app = builder.Build();

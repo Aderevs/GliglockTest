@@ -22,9 +22,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Tests" asp-action="Index">All Tests</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Tests" asp-action="PassedTests">Passed Tests</a>
-                        </li>
+                        @if (User.IsInRole("Teacher"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Tests" asp-action="CreatedTests">Created Tests</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Tests" asp-action="PassedTests">Passed Tests</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Account</a>
                         </li>

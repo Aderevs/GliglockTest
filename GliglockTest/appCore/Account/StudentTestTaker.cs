@@ -27,7 +27,7 @@ namespace GliglockTest.appCore.Account
             {
                 throw new ArgumentNullException(nameof(completedTest));
             }
-            completedTest.Student = this;
+            completedTest.Student = _mapper.Map<Models.StudentView>(this);
             PassedTests.Add(completedTest);
             await _modelAdapter.SavePassedTestToDbAsync(completedTest);
 

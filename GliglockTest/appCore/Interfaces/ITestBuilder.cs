@@ -10,7 +10,7 @@
         void Clear();
         IQuestionBuilder CreateQuestionAndAdd(string questionContent);
         event Func<Test, Task>? OnTestBuilt;
-        TestBuilder SetMaxMark(int maxMark);
+        TestBuilder SetMaxMark(ushort maxMark);
         TestBuilder SetTeacherId(Guid teacherId);
     }
 }

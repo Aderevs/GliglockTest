@@ -26,7 +26,8 @@ namespace GliglockTest.appCore
                 }
             }
         }
-        public StudentTestTaker? Student { get; set; }
+        //public StudentTestTaker? Student { get; set; }
+        public Models.StudentView? Student { get; set; }
         public void CalculateMark()
         {
             float resultMark = 0;
