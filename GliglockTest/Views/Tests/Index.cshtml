@@ -10,4 +10,11 @@
             <br />
         }
     </div>
+@if (User.IsInRole("Teacher"))
+{
+    <br />
+    <a asp-action="CreateTest" class="btn btn-outline-primary">
+        Add new test +
+    </a>
+}
 

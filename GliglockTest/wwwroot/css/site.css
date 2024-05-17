@@ -34,3 +34,7 @@ body {
 .answers {
     margin-top: 20px;
 }
+
+.correct-answer{
+    background-color:lightgreen;
+}

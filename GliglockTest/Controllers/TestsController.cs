@@ -109,6 +109,27 @@ namespace GliglockTest.Controllers
             return View(passedTests);
         }
 
+        public async Task<IActionResult> CreatedTests()
+        {
+            var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+            if (_tests == null)
+            {
+                await RefillLocalTests();
+            }
+            var theirTestIds = _tests
+                .Where(t => t.TeacherId == teacherDb.Id)
+                .Select(t => t.Id)
+                .ToList();
+            var passedTestsDb = await _dbContext.PassedTests
+                .Include(pt => pt.Student)
+                .Include(pt => pt.Test)
+                .Where(pt => theirTestIds
+                .Contains(pt.TestId))
+                .ToListAsync();
+            var passedTests = _mapper.Map<List<appCore.PassedTest>>(passedTestsDb);
+            return View(passedTests);
+        }
+
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> CreateTest()
         {

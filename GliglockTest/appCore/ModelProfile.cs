@@ -27,13 +27,15 @@ namespace GliglockTest.appCore
                 .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions));
 
             CreateMap<DbLogic.PassedTest, PassedTest>()
-                .ForMember(dest => dest.Student, opt => opt.Ignore());
+                /*.ForMember(dest => dest.Student, opt => opt.Ignore())*/;
 
             CreateMap<DbLogic.Question, Question>();
             CreateMap<DbLogic.AnswerOption, AnswerOption>();
 
             CreateMap<DbLogic.Student, Models.StudentView>();
             CreateMap<DbLogic.Teacher, Models.TeacherView>();
+
+            CreateMap<Account.StudentTestTaker, Models.StudentView>();
         }
     }
 }
