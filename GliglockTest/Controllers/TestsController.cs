@@ -137,7 +137,7 @@ namespace GliglockTest.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateTest(appCore.Test testModel)
+        public async Task<IActionResult> CreateTest([FromForm] appCore.Test testModel)
         {
             if (ModelState.IsValid)
             {
@@ -145,7 +145,7 @@ namespace GliglockTest.Controllers
                 {
                     throw new ArgumentNullException(nameof(testModel));
                 }
-                if (testModel.Questions.Any(q => q.AnswerOptions.Count(ao=>ao.IsCorrect) == 0))
+                if (testModel.Questions.Any(q => q.AnswerOptions.Count(ao => ao.IsCorrect) == 0))
                 {
                     ModelState.AddModelError("", "Each Question must has at least one correct answer");
                     return View(testModel);
