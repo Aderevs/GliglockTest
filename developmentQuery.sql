@@ -51,5 +51,5 @@ WithImg = 0
 WHERE Id='00000000-0000-0000-0000-000000000001'
 
 DELETE
-FROM Tests
-WHERE Name IN ('test with image', 'just for check')
+FROM Students
+WHERE FirstName IN ('Tom', 'just for check')

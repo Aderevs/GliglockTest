@@ -31,7 +31,7 @@ namespace GliglockTest.Controllers
         public async Task<IActionResult> Index()
         {
             var allTestsDb = await _dbContext.Tests
-                .Include(t=>t.Teacher)
+                .Include(t => t.Teacher)
                 .Include(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)
                 .ToListAsync();
@@ -43,7 +43,7 @@ namespace GliglockTest.Controllers
         {
             if (_tests == null)
             {
-                RefillLocalTests();
+                await RefillLocalTests();
             }
             var test = _tests.First(t => t.Id == testId);
             return View(test);
@@ -100,6 +100,8 @@ namespace GliglockTest.Controllers
         {
             var email = User.Identity.Name;
             var passedTestsDb = await _dbContext.PassedTests
+                .Include(pt => pt.Student)
+                .Where(pt => pt.Student.Email == email)
                 .Include(pt => pt.Test)
                 .ThenInclude(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)
@@ -140,31 +142,24 @@ namespace GliglockTest.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTest([FromForm] appCore.Test testModel)
         {
-            if (ModelState.IsValid)
+
+            if (testModel == null)
             {
-                if (testModel == null)
-                {
-                    throw new ArgumentNullException(nameof(testModel));
-                }
-                if (testModel.Questions.Any(q => q.AnswerOptions.Count(ao => ao.IsCorrect) == 0))
-                {
-                    ModelState.AddModelError("", "Each Question must has at least one correct answer");
-                    return View(testModel);
-                }
-                testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
-
-
-                var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
-                TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
-                await teacher.CreateTest(testModel);
-                await RefillLocalTests();
-                return RedirectToAction("Index");
+                throw new ArgumentNullException(nameof(testModel));
             }
-            else
+            if (testModel.Questions.Any(q => q.AnswerOptions.Count(ao => ao.IsCorrect) == 0))
             {
+                ModelState.AddModelError("", "Each Question must has at least one correct answer");
                 return View(testModel);
             }
+            testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
 
+
+            var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+            TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
+            await teacher.CreateTest(testModel);
+            await RefillLocalTests();
+            return RedirectToAction("Index");
         }
 
         private bool UploadImage(IFormFile image, string name)
