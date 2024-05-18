@@ -31,6 +31,7 @@ namespace GliglockTest.Controllers
         public async Task<IActionResult> Index()
         {
             var allTestsDb = await _dbContext.Tests
+                .Include(t=>t.Teacher)
                 .Include(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)
                 .ToListAsync();

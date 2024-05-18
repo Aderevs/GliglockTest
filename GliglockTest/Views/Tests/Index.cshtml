@@ -1,15 +1,25 @@
 ﻿@model List<GliglockTest.appCore.Test>
 
-    <h1>Tests</h1>
-    <div>
-        @foreach(var test in Model)
-        {
-            <a asp-action="CertainTest" asp-route-testId="@test.Id">
+<h1>Tests</h1>
+<div class="all-tests">
+    @foreach (var test in Model)
+    {
+        <a asp-action="CertainTest" asp-route-testId="@test.Id">
+            <div class="certain-test">
+                <strong>Title:</strong>
                 @test.Name
-            </a>
-            <br />
-        }
-    </div>
+                <br />
+                <strong>Max mark:</strong>
+                @test.MaxMark
+                <br />
+                <strong>Created:</strong>
+                @test.Teacher.FirstName 
+                @test.Teacher.LastName 
+            </div>
+        </a>
+        <br />
+    }
+</div>
 @if (User.IsInRole("Teacher"))
 {
     <br />

@@ -47,21 +47,43 @@ body {
     color: azure;
     display: flex;
 }
+
 .my-social-contacts {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-.my-social-contacts div {
+
+    .my-social-contacts div {
+        display: flex;
+        align-items: center;
+    }
+
+        .my-social-contacts div a {
+            margin-top: -25px;
+            margin-left: 30px;
+        }
+
+            .my-social-contacts div a img {
+                width: 25px;
+            }
+
+.all-tests {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
 }
 
-.my-social-contacts div a {
-    margin-top: -25px;
-    margin-left: 30px;
-}
+    .all-tests a {
+        background-color: lightgray;
+        margin-left: 25px;
+        text-decoration: none;
+        color: black;
+        padding:5px;
+        border-radius: 15px;
+        transition: background .4s ease;
+    }
 
-.my-social-contacts div a img {
-    width:25px;
-}
+        .all-tests a:hover {
+            background-color: gray;
+            transition: background .4s ease;
+        }
