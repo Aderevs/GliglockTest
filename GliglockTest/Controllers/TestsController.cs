@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using GliglockTest.appCore.Account;
+using Microsoft.Extensions.Caching.Memory;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace GliglockTest.Controllers
 {
@@ -12,40 +14,97 @@ namespace GliglockTest.Controllers
     {
         private readonly TestsDbContext _dbContext;
         private readonly IMapper _mapper;
-        private static List<appCore.Test>? _tests;
+        private readonly IMemoryCache _cache;
+        //private static List<appCore.Test>? _tests;
+        private const string CacheKey = "TestsList";
+        public TestsController(
+                   TestsDbContext dbContext,
+                   IMapper mapper,
+                   IMemoryCache memoryCache)
+        {
+            _dbContext = dbContext;
+            _mapper = mapper;
+            _cache = memoryCache;
+        }
 
-        private async Task RefillLocalTests()
+        /*private async Task RefillLocalTests()
         {
             var allTestsDb = await _dbContext.Tests
                 .Include(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)
                 .ToListAsync();
             _tests = _mapper.Map<List<appCore.Test>>(allTestsDb);
-        }
-        public TestsController(TestsDbContext dbContext, IMapper mapper)
+        }*/
+        private async Task<List<appCore.Test>> RefillCache()
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+            _cache.Remove(CacheKey);
+            // Data not in cache, fetch from the source
+            var tests = await FetchTestsFromDB();
+
+            // Set the data in the cache with an expiration time
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
+                .SetSlidingExpiration(TimeSpan.FromMinutes(2));
+
+            _cache.Set(CacheKey, tests, cacheEntryOptions);
+            return tests;
         }
+        private async Task<List<appCore.Test>> FetchTestsFromDB()
+        {
+            var allTestsDb = await _dbContext.Tests
+                .Include(t=>t.Teacher)
+                .Include(t => t.Questions)
+                .ThenInclude(q => q.AnswerOptions)
+                //.OrderBy(t => t.Name)
+                .ToListAsync();
+            return _mapper.Map<List<appCore.Test>>(allTestsDb);
+        }
+
+
 
         public async Task<IActionResult> Index()
         {
-            var allTestsDb = await _dbContext.Tests
+            /*var allTestsDb = await _dbContext.Tests
                 .Include(t => t.Teacher)
                 .Include(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)
                 .ToListAsync();
             _tests = _mapper.Map<List<appCore.Test>>(allTestsDb);
-            return View(_tests);
+            return View(_tests);*/
+            List<appCore.Test>? tests;
+            if (!_cache.TryGetValue(CacheKey, out tests))
+            {
+                // Data not in cache, fetch from the source
+                tests = await RefillCache();
+            }
+            return View(tests);
+
         }
 
         public async Task<IActionResult> CertainTest(Guid testId)
         {
-            if (_tests == null)
+            /*if (_tests == null)
             {
                 await RefillLocalTests();
             }
-            var test = _tests.First(t => t.Id == testId);
+            var test = _tests.First(t => t.Id == testId);*/
+
+
+            List<appCore.Test>? tests;
+            appCore.Test test;
+            if (!_cache.TryGetValue(CacheKey, out tests) ||
+                !tests.Any(t => t.Id == testId))
+            {
+                var testDb = await _dbContext.Tests
+                    .Include(t => t.Questions)
+                    .ThenInclude(q => q.AnswerOptions)
+                    .FirstAsync(t => t.Id == testId);
+                test = _mapper.Map<appCore.Test>(testDb);
+            }
+            else
+            {
+                test = tests.First(t => t.Id == testId);
+            }
             return View(test);
         }
 
@@ -54,7 +113,23 @@ namespace GliglockTest.Controllers
         {
             appCore.PassedTest passedTest = new appCore.PassedTest();
 
-            passedTest.Test = _tests.First(t => t.Id == TestId);
+            List<appCore.Test>? tests;
+            appCore.Test test;
+            //passedTest.Test = _tests.First(t => t.Id == TestId);
+            if (!_cache.TryGetValue(CacheKey, out tests) ||
+                !tests.Any(t => t.Id == TestId))
+            {
+                var testDb = await _dbContext.Tests
+                    .Include(t => t.Questions)
+                    .ThenInclude(q => q.AnswerOptions)
+                    .FirstAsync(t => t.Id == TestId);
+                test = _mapper.Map<appCore.Test>(testDb);
+            }
+            else
+            {
+                test = tests.First(t => t.Id == TestId);
+            }
+            passedTest.Test = test;
             if (answers == null)
             {
                 passedTest.Mark = 0;
@@ -98,7 +173,7 @@ namespace GliglockTest.Controllers
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> PassedTests()
         {
-            var email = User.Identity.Name;
+            var email = User?.Identity?.Name;
             var passedTestsDb = await _dbContext.PassedTests
                 .Include(pt => pt.Student)
                 .Where(pt => pt.Student.Email == email)
@@ -115,19 +190,22 @@ namespace GliglockTest.Controllers
         public async Task<IActionResult> CreatedTests()
         {
             var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
-            if (_tests == null)
+            /*if (_tests == null)
             {
                 await RefillLocalTests();
-            }
-            var theirTestIds = _tests
+            }*/
+            /*var theirTestIds = _tests
                 .Where(t => t.TeacherId == teacherDb.Id)
                 .Select(t => t.Id)
-                .ToList();
+                .ToList();*/
+            var theirTestIds = await _dbContext.Tests
+                .Where(t => t.TeacherId == teacherDb.Id)
+                .Select(t => t.Id)
+                .ToListAsync();
             var passedTestsDb = await _dbContext.PassedTests
                 .Include(pt => pt.Student)
                 .Include(pt => pt.Test)
-                .Where(pt => theirTestIds
-                .Contains(pt.TestId))
+                .Where(pt => theirTestIds.Contains(pt.TestId))
                 .ToListAsync();
             var passedTests = _mapper.Map<List<appCore.PassedTest>>(passedTestsDb);
             return View(passedTests);
@@ -158,7 +236,8 @@ namespace GliglockTest.Controllers
             var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
             TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
             await teacher.CreateTest(testModel);
-            await RefillLocalTests();
+            //await RefillLocalTests();
+            await RefillCache();
             return RedirectToAction("Index");
         }
 

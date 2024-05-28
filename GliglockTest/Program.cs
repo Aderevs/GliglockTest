@@ -29,6 +29,7 @@ namespace GliglockTest
                {
                    options.LoginPath = "/account/SignIn";
                });
+            builder.Services.AddMemoryCache();
 
             var app = builder.Build();
 

@@ -88,3 +88,7 @@ body {
             background-color: gray;
             transition: background .4s ease;
         }
+
+#whole-form{
+    margin-bottom: 50px;
+}
