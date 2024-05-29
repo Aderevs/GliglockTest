@@ -31,9 +31,10 @@ else
 
     <div id="testing-page">
         <div id="question" class="question"></div>
-        <button onclick="previousQuestion()">Попереднє</button>
-        <button onclick="nextQuestion()">Наступне</button>
-        <button onclick="finishTest()">Finish Test</button>
+        <br />
+        <button onclick="previousQuestion()" class="btn navigate-button">&lt; Previous</button>
+        <button onclick="nextQuestion()" class="btn navigate-button">Next ></button>
+        <button onclick="finishTest()" class="btn btn-success disabled" id="submit-button">Finish Test</button>
     </div>
 
     <script>
@@ -67,7 +68,12 @@ else
                 }
                 questionDiv.innerHTML += ' <label for="' + option.Id + '">' + option.Content + '</label> <br> '
             })
-
+            console.log('currentQuestionIndex', currentQuestionIndex);
+            console.log('questions.length - 1', questions.length - 1);
+            if (currentQuestionIndex == questions.length - 1) {
+                let finishButton = document.getElementById('submit-button');
+                finishButton.classList.remove('disabled');
+            }
         }
 
         displayQuestion(currentQuestionIndex);
@@ -86,7 +92,6 @@ else
                     selectedOptions.push(radio.id);
                 }
             }
-
             answers[currentQuestionIndex] = { questionId: currentQuestion.Id, selectedOptions: selectedOptions };
         }
 
