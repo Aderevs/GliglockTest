@@ -17,7 +17,7 @@ namespace GliglockTest.Controllers
         private readonly IMemoryCache _cache;
         //private static List<appCore.Test>? _tests;
         private const string CacheKeyTestsList = "TestsList";
-        private const int NumberOfTestsInOnePage = 1;
+        private const int NumberOfTestsInOnePage = 2;
 
         public TestsController(
                    TestsDbContext dbContext,
@@ -51,20 +51,24 @@ namespace GliglockTest.Controllers
             return tests;
         }
 
-        private async Task<List<appCore.Test>> RefillCacheForPageAndGetTests(int pageNumber)
+        private async Task<TestsListPage> RefillCacheForPageAndGetTests(ushort pageNumber)
         {
             // Data not in cache, fetch from the source
             var tests = await FetchTestsFromDB(pageNumber);
-
+            TestsListPage testsList = new TestsListPage
+            {
+                TestList = tests,
+                PageNumber = pageNumber
+            };
             // Set the data in the cache with an expiration time
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
                 .SetSlidingExpiration(TimeSpan.FromMinutes(5));
 
-            _cache.Set(CacheKeyTestsList, tests, cacheEntryOptions);
-            return tests;
+            _cache.Set(CacheKeyTestsList, testsList, cacheEntryOptions);
+            return testsList;
         }
-        private async Task<List<appCore.Test>> RefillCacheForPageAndGetTests() => await RefillCacheForPageAndGetTests(1);
+        private async Task<TestsListPage> RefillCacheForPageAndGetTests() => await RefillCacheForPageAndGetTests(1);
         private async Task<List<appCore.Test>> FetchTestsFromDB()
         {
             var allTestsDb = await _dbContext.Tests
@@ -99,17 +103,12 @@ namespace GliglockTest.Controllers
                 .ToListAsync();
             _tests = _mapper.Map<List<appCore.Test>>(allTestsDb);
             return View(_tests);*/
-            List<appCore.Test>? tests;
-            if (!_cache.TryGetValue(CacheKeyTestsList, out tests))
+            TestsListPage? testsListPage;
+            if (!_cache.TryGetValue(CacheKeyTestsList, out testsListPage))
             {
                 // Data not in cache, fetch from the source
-                tests = await RefillCacheForPageAndGetTests();
+                testsListPage = await RefillCacheForPageAndGetTests();
             }
-            TestsListPage testsListPage = new TestsListPage
-            {
-                TestList = tests,
-                PageNumber = 1
-            };
             return View(testsListPage);
 
         }
@@ -276,16 +275,7 @@ namespace GliglockTest.Controllers
 
         public async Task<IActionResult> TestsList(ushort page)
         {
-            List<appCore.Test>? tests = await RefillCacheForPageAndGetTests(page);
-            /*if (!tests.Any() && page > 1)
-            {
-                page--;
-            }*/
-            TestsListPage testsListPage = new TestsListPage
-            {
-                TestList = tests,
-                PageNumber = page
-            };
+            TestsListPage testsListPage = await RefillCacheForPageAndGetTests(page);
             return View("Index", testsListPage);
         }
         private bool UploadImage(IFormFile image, string name)

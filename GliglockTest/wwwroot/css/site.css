@@ -93,3 +93,7 @@ body {
 #whole-form{
     margin-bottom: 50px;
 }
+.navigate-button {
+    background-color: #6684b4;
+    color: azure;
+}
