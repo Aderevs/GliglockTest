@@ -50,7 +50,8 @@ namespace GliglockTest.appCore
             }
             if (!question.HasStudentAnswer)
             {
-                throw new InvalidOperationException($"Attempt to calculate number of points per question that doesn't executed");
+                //throw new InvalidOperationException($"Attempt to calculate number of points per question that doesn't executed");
+                return 0f;
             }
             float result;
             if (question.HasManyAnswers)

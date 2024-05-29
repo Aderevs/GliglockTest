@@ -39,7 +39,7 @@ namespace GliglockTest.Controllers
             };
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
-                .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                .SetSlidingExpiration(TimeSpan.FromMinutes(2));
 
             _cache.Set(CacheKeyTestsList, testsList, cacheEntryOptions);
             return testsList;
@@ -57,7 +57,6 @@ namespace GliglockTest.Controllers
                 .ToListAsync();
             return _mapper.Map<List<appCore.Test>>(allTestsDb);
         }
-
 
 
         public async Task<IActionResult> Index()
@@ -126,11 +125,11 @@ namespace GliglockTest.Controllers
                 var currentQuestionAnswers = answers
                 .First(a => a.QuestionId == question.Id)
                 .SelectedOptions;
+
                 answersToSet = answersToSet
                 .Where(ats => currentQuestionAnswers.Contains(ats.Id))
                 .ToList();
                 question.AddStudentsAnswer(answersToSet);
-
             });
             passedTest.CalculateMark();
             if (User.Identity.IsAuthenticated)
