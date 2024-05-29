@@ -1,25 +1,36 @@
-﻿@model List<GliglockTest.appCore.Test>
+﻿@model GliglockTest.appCore.TestsListPage
 
 <h1>Tests</h1>
-<div class="all-tests">
-    @foreach (var test in Model)
-    {
-        <a asp-action="CertainTest" asp-route-testId="@test.Id">
-            <div class="certain-test">
-                <strong>Title:</strong>
-                @test.Name
-                <br />
-                <strong>Max mark:</strong>
-                @test.MaxMark
-                <br />
-                <strong>Created:</strong>
-                @test.Teacher.FirstName 
-                @test.Teacher.LastName 
-            </div>
-        </a>
-        <br />
-    }
-</div>
+@{
+    bool isThereAnyTests = Model.TestList.Any();
+}
+@if (isThereAnyTests)
+{
+    <div class="all-tests">
+        @foreach (var test in Model.TestList)
+        {
+            <a asp-action="CertainTest" asp-route-testId="@test.Id">
+                <div class="certain-test">
+                    <strong>Title:</strong>
+                    @test.Name
+                    <br />
+                    <strong>Max mark:</strong>
+                    @test.MaxMark
+                    <br />
+                    <strong>Created:</strong>
+                    @test.Teacher.FirstName
+                    @test.Teacher.LastName
+                </div>
+            </a>
+            <br />
+        }
+    </div>
+}
+else
+{
+    <h3>It seems the tests are over...</h3>
+}
+
 @if (User.IsInRole("Teacher"))
 {
     <br />
@@ -27,4 +38,28 @@
         Add new test +
     </a>
 }
+<br />
+<br />
+<div>
+    @{
+        int nextPageNumber = Model.PageNumber + 1;
+        int previousPageNumber = Model.PageNumber - 1;
+    }
+    @if (previousPageNumber >= 1)
+    {
+        <a asp-action="TestsList" asp-route-page="@previousPageNumber" class="btn btn-info">&lt; Previous</a>
+    }
+    else
+    {
+        <a class="btn btn-info disabled">&lt;Previous</a>
+    }
+    @if (isThereAnyTests)
+    {
+        <a asp-action="TestsList" asp-route-page="@nextPageNumber" class="btn btn-info">Next ></a>
+    }
+    else
+    {
+        <a class="btn btn-info disabled">Next ></a>
+    }
 
+</div>
