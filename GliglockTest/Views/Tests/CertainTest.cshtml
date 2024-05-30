@@ -115,7 +115,7 @@ else
 
             let ajaxUrl = '';
             $.ajax({
-                url: '/Tests/SubmitAnswers?TestId=@Model.Id',
+                url: '/Tests/SubmitAnswers?testId=@Model.Id',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(answers.filter(function (answer) {

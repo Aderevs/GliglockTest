@@ -15,7 +15,8 @@ namespace GliglockTest.Controllers
         private readonly TestsDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _cache;
-        private const string CacheKeyTestsList = "TestsList";
+        private const string CacheKeyTestsList = "TestsListPage";
+        private const string CacheKeyCertainTest = "Tests";
         private const int NumberOfTestsInOnePage = 2;
 
         public TestsController(
@@ -31,21 +32,31 @@ namespace GliglockTest.Controllers
 
         private async Task<TestsListPage> RefillCacheForPageAndGetTests(ushort pageNumber)
         {
-            var tests = await FetchTestsFromDB(pageNumber);
+            var tests = await FetchTestsPageFromDB(pageNumber);
             TestsListPage testsList = new TestsListPage
             {
                 TestList = tests,
                 PageNumber = pageNumber
             };
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
                 .SetSlidingExpiration(TimeSpan.FromMinutes(2));
 
-            _cache.Set(CacheKeyTestsList, testsList, cacheEntryOptions);
+            _cache.Set(CacheKeyTestsList + pageNumber.ToString(), testsList, cacheEntryOptions);
             return testsList;
         }
         private async Task<TestsListPage> RefillCacheForPageAndGetTests() => await RefillCacheForPageAndGetTests(1);
-        private async Task<List<appCore.Test>> FetchTestsFromDB(int pageNumber)
+
+        private async Task<appCore.Test> GetCertainTestAndAddToCache(Guid testId)
+        {
+            var test = await FetchTestFromDb(testId);
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+               .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
+               .SetSlidingExpiration(TimeSpan.FromMinutes(2));
+            _cache.Set(CacheKeyCertainTest + testId.ToString(), test, cacheEntryOptions);
+            return test;
+        }
+        private async Task<List<appCore.Test>> FetchTestsPageFromDB(int pageNumber)
         {
             var allTestsDb = await _dbContext.Tests
                 .Include(t => t.Teacher)
@@ -58,11 +69,21 @@ namespace GliglockTest.Controllers
             return _mapper.Map<List<appCore.Test>>(allTestsDb);
         }
 
+        private async Task<appCore.Test> FetchTestFromDb(Guid testId)
+        {
+            var testDb = await _dbContext.Tests
+                    .Include(t => t.Questions)
+                    .ThenInclude(q => q.AnswerOptions)
+                    .FirstAsync(t => t.Id == testId);
+            var test = _mapper.Map<appCore.Test>(testDb);
+            return test;
+        }
+
 
         public async Task<IActionResult> Index()
         {
             TestsListPage? testsListPage;
-            if (!_cache.TryGetValue(CacheKeyTestsList, out testsListPage))
+            if (!_cache.TryGetValue(CacheKeyTestsList + "1", out testsListPage))
             {
                 testsListPage = await RefillCacheForPageAndGetTests();
             }
@@ -72,43 +93,22 @@ namespace GliglockTest.Controllers
 
         public async Task<IActionResult> CertainTest(Guid testId)
         {
-            List<appCore.Test>? tests;
             appCore.Test test;
-            if (!_cache.TryGetValue(CacheKeyTestsList, out tests) ||
-                !tests.Any(t => t.Id == testId))
+            if (!_cache.TryGetValue(CacheKeyCertainTest + testId.ToString(), out test))
             {
-                var testDb = await _dbContext.Tests
-                    .Include(t => t.Questions)
-                    .ThenInclude(q => q.AnswerOptions)
-                    .FirstAsync(t => t.Id == testId);
-                test = _mapper.Map<appCore.Test>(testDb);
-            }
-            else
-            {
-                test = tests.First(t => t.Id == testId);
+                test = await GetCertainTestAndAddToCache(testId);
             }
             return View(test);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid TestId)
+        public async Task<IActionResult> SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid testId)
         {
             appCore.PassedTest passedTest = new appCore.PassedTest();
-
-            List<appCore.Test>? tests;
             appCore.Test test;
-            if (!_cache.TryGetValue(CacheKeyTestsList, out tests) ||
-                !tests.Any(t => t.Id == TestId))
+            if (!_cache.TryGetValue(CacheKeyCertainTest + testId.ToString(), out test))
             {
-                var testDb = await _dbContext.Tests
-                    .Include(t => t.Questions)
-                    .ThenInclude(q => q.AnswerOptions)
-                    .FirstAsync(t => t.Id == TestId);
-                test = _mapper.Map<appCore.Test>(testDb);
-            }
-            else
-            {
-                test = tests.First(t => t.Id == TestId);
+                test = await GetCertainTestAndAddToCache(testId);
             }
             passedTest.Test = test;
             if (answers == null)
@@ -198,6 +198,10 @@ namespace GliglockTest.Controllers
             {
                 throw new ArgumentNullException(nameof(testModel));
             }
+            if(testModel.MaxMark==0)
+            {
+                testModel.MaxMark = 100;
+            }
             if (testModel.Questions.Any(q => q.AnswerOptions.Count(ao => ao.IsCorrect) == 0))
             {
                 ModelState.AddModelError("", "Each Question must has at least one correct answer");
@@ -209,13 +213,16 @@ namespace GliglockTest.Controllers
             var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
             TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
             await teacher.CreateTest(testModel);
-            await RefillCacheForPageAndGetTests();
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> TestsList(ushort page)
         {
-            TestsListPage testsListPage = await RefillCacheForPageAndGetTests(page);
+            TestsListPage testsListPage;
+            if (!_cache.TryGetValue(CacheKeyTestsList + page.ToString(), out testsListPage))
+            {
+                testsListPage = await RefillCacheForPageAndGetTests(page);
+            }
             return View("Index", testsListPage);
         }
         private bool UploadImage(IFormFile image, string name)

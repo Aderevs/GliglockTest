@@ -15,7 +15,7 @@ namespace GliglockTest
             // Add services to the container.
             builder.Services.AddControllersWithViews();
                 //.AddCookieTempDataProvider();
-            builder.Services.AddSingleton(provider =>
+            builder.Services.AddScoped(provider =>
             {
                 var connectionString = builder.Configuration["ConnectionString"];
                 return new TestsDbContext(connectionString);
