@@ -1,6 +1,8 @@
 using AutoMapper;
 using GliglockTest.appCore;
 using GliglockTest.DbLogic;
+using GliglockTest.DbLogic.Repositories;
+using GliglockTest.DbLogic.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Reflection;
 
@@ -30,6 +32,10 @@ namespace GliglockTest
                    options.LoginPath = "/account/SignIn";
                });
             builder.Services.AddMemoryCache();
+            builder.Services.AddScoped<ITestsRepository, TestsRepository>();
+            builder.Services.AddScoped<ITeachersRepository, TeachersRepository>();
+            builder.Services.AddScoped<IStudentsRepository, StudentsRepository>();
+            builder.Services.AddScoped<IPassedTestsRepository, PassedTestsRepository>();
 
             var app = builder.Build();
 
