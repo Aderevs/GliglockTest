@@ -15,6 +15,17 @@ namespace GliglockTest.DbLogic.Repositories
         {
             return await _dbContext.PassedTests
                 .Where(pt => pt.StudentId == studentId)
+                .Include(pt=>pt.Student)
+                .Include(pt => pt.Test)
+                .ThenInclude(t => t.Questions)
+                .ThenInclude(q => q.AnswerOptions)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<PassedTest>> GetPassedTestsOfStudentByEmailAsync(string studentEmail)
+        {
+            return await _dbContext.PassedTests
+                .Include(pt => pt.Student)
+                .Where(pt => pt.Student.Email == studentEmail)
                 .Include(pt => pt.Test)
                 .ThenInclude(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)

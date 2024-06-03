@@ -6,13 +6,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using GliglockTest.appCore.Account;
 using Microsoft.Extensions.Caching.Memory;
-using static System.Net.Mime.MediaTypeNames;
+using GliglockTest.DbLogic.Repositories.Interfaces;
 
 namespace GliglockTest.Controllers
 {
     public class TestsController : Controller
     {
         private readonly TestsDbContext _dbContext;
+        private readonly ITestsRepository _testsRepository;
+        private readonly IStudentsRepository _studentsRepository;
+        private readonly ITeachersRepository _teachersRepository;
+        private readonly IPassedTestsRepository _passedTestsRepository;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _cache;
         private const string CacheKeyTestsList = "TestsListPage";
@@ -22,11 +26,19 @@ namespace GliglockTest.Controllers
         public TestsController(
                    TestsDbContext dbContext,
                    IMapper mapper,
-                   IMemoryCache memoryCache)
+                   IMemoryCache memoryCache,
+                   ITestsRepository testRepository,
+                   IStudentsRepository studentsRepository,
+                   ITeachersRepository teachersRepository,
+                   IPassedTestsRepository passedTestsRepository)
         {
-            _dbContext = dbContext;
+                 _dbContext = dbContext;
             _mapper = mapper;
             _cache = memoryCache;
+            _testsRepository = testRepository;
+            _studentsRepository = studentsRepository;
+            _passedTestsRepository = passedTestsRepository;
+            _teachersRepository = teachersRepository;
         }
 
 
@@ -58,23 +70,27 @@ namespace GliglockTest.Controllers
         }
         private async Task<List<appCore.Test>> FetchTestsPageFromDB(int pageNumber)
         {
-            var allTestsDb = await _dbContext.Tests
+            /*var allTestsDb = await _dbContext.Tests
                 .Include(t => t.Teacher)
                 .Include(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)
                 .OrderBy(t => t.Name)
                 .Skip((pageNumber - 1) * NumberOfTestsInOnePage)
                 .Take(NumberOfTestsInOnePage)
-                .ToListAsync();
+                .ToListAsync();*/
+
+            var allTestsDb = await _testsRepository.GetPaginatedSolidTestsIncludeTeacherAsync(NumberOfTestsInOnePage, pageNumber);
             return _mapper.Map<List<appCore.Test>>(allTestsDb);
         }
 
         private async Task<appCore.Test> FetchTestFromDb(Guid testId)
         {
-            var testDb = await _dbContext.Tests
+            /*var testDb = await _dbContext.Tests
                     .Include(t => t.Questions)
                     .ThenInclude(q => q.AnswerOptions)
-                    .FirstAsync(t => t.Id == testId);
+                    .FirstAsync(t => t.Id == testId);*/
+
+            var testDb = await _testsRepository.GetSolidTestByIdAsync(testId);
             var test = _mapper.Map<appCore.Test>(testDb);
             return test;
         }
@@ -135,10 +151,11 @@ namespace GliglockTest.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 appCore.Account.StudentTestTaker student = new(_dbContext, _mapper);
-                var studentDb = await _dbContext.Students
+                /*var studentDb = await _dbContext.Students
                     .Include(s => s.PassedTests)
                     .ThenInclude(pt => pt.Test)
-                    .FirstAsync(s => s.Email == User.Identity.Name);
+                    .FirstAsync(s => s.Email == User.Identity.Name);*/
+                var studentDb = await _studentsRepository.GetStudentByEmailIncludePassedTestsAsync(User.Identity.Name);
                 student.Id = studentDb.Id;
                 student.Email = studentDb.Email;
                 student.FirstName = studentDb.FirstName;
@@ -155,13 +172,14 @@ namespace GliglockTest.Controllers
         public async Task<IActionResult> PassedTests()
         {
             var email = User?.Identity?.Name;
-            var passedTestsDb = await _dbContext.PassedTests
+            /*var passedTestsDb = await _dbContext.PassedTests
                 .Include(pt => pt.Student)
                 .Where(pt => pt.Student.Email == email)
                 .Include(pt => pt.Test)
                 .ThenInclude(t => t.Questions)
                 .ThenInclude(q => q.AnswerOptions)
-                .ToListAsync();
+                .ToListAsync();*/
+            var passedTestsDb = await _passedTestsRepository.GetPassedTestsOfStudentByEmailAsync(email);
 
             var passedTests = _mapper.Map<List<appCore.PassedTest>>(passedTestsDb);
 
@@ -170,8 +188,9 @@ namespace GliglockTest.Controllers
 
         public async Task<IActionResult> CreatedTests()
         {
-            var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
-            var theirTestIds = await _dbContext.Tests
+            var teacherDb = await _teachersRepository.GetTeacherByEmailAsync(User.Identity.Name);
+            //_dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+            /*var theirTestIds = await _dbContext.Tests
                 .Where(t => t.TeacherId == teacherDb.Id)
                 .Select(t => t.Id)
                 .ToListAsync();
@@ -179,7 +198,8 @@ namespace GliglockTest.Controllers
                 .Include(pt => pt.Student)
                 .Include(pt => pt.Test)
                 .Where(pt => theirTestIds.Contains(pt.TestId))
-                .ToListAsync();
+                .ToListAsync();*/
+            var passedTestsDb = await _passedTestsRepository.GetPassedTestsOfTeachersCreatedByIdAsync(teacherDb.Id);
             var passedTests = _mapper.Map<List<appCore.PassedTest>>(passedTestsDb);
             return View(passedTests);
         }
@@ -198,7 +218,7 @@ namespace GliglockTest.Controllers
             {
                 throw new ArgumentNullException(nameof(testModel));
             }
-            if(testModel.MaxMark==0)
+            if (testModel.MaxMark == 0)
             {
                 testModel.MaxMark = 100;
             }
@@ -210,7 +230,8 @@ namespace GliglockTest.Controllers
             testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
 
 
-            var teacherDb = await _dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+            var teacherDb = await _teachersRepository.GetTeacherByEmailAsync(User.Identity.Name);
+                //_dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
             TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
             await teacher.CreateTest(testModel);
             return RedirectToAction("Index");

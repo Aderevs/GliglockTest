@@ -8,6 +8,6 @@
         Task<IEnumerable<Test>> GetAllSolidTestsIncludeTeacherAsync();
         Task<IEnumerable<Test>> GetPaginatedSolidTestsAsync(int limit, int pageNumber);
         Task<IEnumerable<Test>> GetPaginatedSolidTestsIncludeTeacherAsync(int limit, int pageNumber);
-        Task<Test> GetSolidTestById(Guid id);
+        Task<Test> GetSolidTestByIdAsync(Guid id);
     }
 }

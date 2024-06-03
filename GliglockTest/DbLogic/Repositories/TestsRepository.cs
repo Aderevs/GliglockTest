@@ -48,7 +48,7 @@ namespace GliglockTest.DbLogic.Repositories
                 .Take(limit)
                 .ToListAsync();
         }
-        public async Task<Test> GetSolidTestById(Guid id)
+        public async Task<Test> GetSolidTestByIdAsync(Guid id)
         {
             return await _dbContext.Tests
                 .Include(t => t.Questions)
