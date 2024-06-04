@@ -11,7 +11,6 @@ namespace GliglockTest.appCore.Account
         private readonly ITestBuilder _testBuilder;
         private readonly IMapper _mapper;
         private readonly ITestsRepository _testsRepository;
-        //private readonly DbModelAdapter _dbAdapter;
         public List<Test>? CreatedTests { get; set; }
         public TeacherTestCreator(IMapper mapper, ITestsRepository testsRepository)
         {
@@ -19,7 +18,6 @@ namespace GliglockTest.appCore.Account
             _testBuilder = new TestBuilder();
             _testBuilder.OnTestBuilt += CreateTest;
             _testsRepository = testsRepository;
-            //_dbAdapter = new DbModelAdapter(dbContext, _mapper);
         }
         public ITestBuilder CreateTestWithBuilder(string name)
         {
@@ -31,7 +29,6 @@ namespace GliglockTest.appCore.Account
         public async Task CreateTest(Test test)
         {
             test.TeacherId = Id;
-            //await _dbAdapter.SaveCreatedTestToDbAsync(test);
             var dbTest = _mapper.Map<DbLogic.Test>(test);
             await _testsRepository.AddTestAsync(dbTest);
         }

@@ -8,8 +8,7 @@ namespace GliglockTest.appCore
     {
         public ModelProfile()
         {
-            CreateMap<Test, DbLogic.Test>()/*
-                .ForMember(dest => dest.Questions, opt => opt.Ignore())*/;
+            CreateMap<Test, DbLogic.Test>();
 
             CreateMap<PassedTest, DbLogic.PassedTest>()
                 .ForMember(dest => dest.TestId, opt => opt.MapFrom(src => src.Test.Id))
@@ -17,16 +16,14 @@ namespace GliglockTest.appCore
                 .ForMember(dest => dest.Test, opt => opt.Ignore())
                 .ForMember(dest => dest.Student, opt => opt.Ignore());
 
-            CreateMap<Question, DbLogic.Question>()/*
-                .ForMember(dest => dest.AnswerOptions, opt => opt.Ignore())*/;
+            CreateMap<Question, DbLogic.Question>();
 
             CreateMap<AnswerOption, DbLogic.AnswerOption>();
 
 
             CreateMap<DbLogic.Test, Test>();
 
-            CreateMap<DbLogic.PassedTest, PassedTest>()
-                /*.ForMember(dest => dest.Student, opt => opt.Ignore())*/;
+            CreateMap<DbLogic.PassedTest, PassedTest>();
 
             CreateMap<DbLogic.Question, Question>();
             CreateMap<DbLogic.AnswerOption, AnswerOption>();

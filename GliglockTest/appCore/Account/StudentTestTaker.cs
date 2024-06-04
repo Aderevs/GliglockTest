@@ -10,7 +10,6 @@ namespace GliglockTest.appCore.Account
     {
         private readonly IMapper _mapper = mapper;
         private readonly IPassedTestsRepository _passedTestsRepository = passedTestsRepository;
-        //private readonly DbModelAdapter _modelAdapter;
         public List<PassedTest>? PassedTests { get; set; }
 
         public async Task SaveTestResultAsync(PassedTest completedTest)

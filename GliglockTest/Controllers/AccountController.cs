@@ -14,18 +14,15 @@ namespace GliglockTest.Controllers
 {
     public class AccountController : Controller
     {
-        //private readonly TestsDbContext _dbContext;
         private readonly IStudentsRepository _studentsRepository;
         private readonly ITeachersRepository _teachersRepository;
         private readonly IMapper _mapper;
 
         public AccountController(
-            //TestsDbContext dbContext,
             IMapper mapper,
             IStudentsRepository studentsRepository,
             ITeachersRepository teachersRepository)
         {
-            //_dbContext = dbContext;
             _mapper = mapper;
             _studentsRepository = studentsRepository;
             _teachersRepository = teachersRepository;
@@ -36,13 +33,13 @@ namespace GliglockTest.Controllers
         {
             if (User.IsInRole("Student"))
             {
-                var studentDb = await _studentsRepository.GetStudentByEmailAsync(User.Identity.Name); //_dbContext.Students.FirstAsync(s => s.Email == User.Identity.Name);
+                var studentDb = await _studentsRepository.GetStudentByEmailAsync(User.Identity.Name); 
                 var student = _mapper.Map<StudentView>(studentDb);
                 return View(student);
             }
             else if (User.IsInRole("Teacher"))
             {
-                var teacherDb = await _teachersRepository.GetTeacherByEmailAsync(User.Identity.Name); //_dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+                var teacherDb = await _teachersRepository.GetTeacherByEmailAsync(User.Identity.Name);
                 var teacher = _mapper.Map<TeacherView>(teacherDb);
                 return View(teacher);
             }
@@ -66,7 +63,7 @@ namespace GliglockTest.Controllers
                 User newUser;
                 if (!model.IsTeacher)
                 {
-                    loginIsUnique = !await _studentsRepository.CheckIfExistsStudentWithEmailAsync(model.Email); //!_dbContext.Students.Any(u => u.Email == model.Email);
+                    loginIsUnique = !await _studentsRepository.CheckIfExistsStudentWithEmailAsync(model.Email); 
                     if (loginIsUnique)
                     {
                         newUser = new Student
@@ -79,8 +76,6 @@ namespace GliglockTest.Controllers
                             Salt = Guid.NewGuid(),
                         };
                         newUser.PasswordHash = PasswordHasher.HashPassword(model.Password + newUser.Salt.ToString());
-                        /*_dbContext.Students.Add((Student)newUser);
-                        await _dbContext.SaveChangesAsync();*/
                         await _studentsRepository.AddStudentAsync((Student)newUser);
                         await SignInAsync(newUser);
                         return RedirectToAction("Index", "Account");
@@ -94,7 +89,7 @@ namespace GliglockTest.Controllers
                 }
                 else
                 {
-                    loginIsUnique = !await _teachersRepository.CheckIfExistsTeacherWithEmailAsync(model.Email); //!_dbContext.Teachers.Any(u => u.Email == model.Email);
+                    loginIsUnique = !await _teachersRepository.CheckIfExistsTeacherWithEmailAsync(model.Email);
                     if (loginIsUnique)
                     {
                         newUser = new Teacher
@@ -107,8 +102,6 @@ namespace GliglockTest.Controllers
                             Salt = Guid.NewGuid(),
                         };
                         newUser.PasswordHash = PasswordHasher.HashPassword(model.Password + newUser.Salt.ToString());
-                        /* _dbContext.Teachers.Add((Teacher)newUser);
-                         await _dbContext.SaveChangesAsync();*/
                         await _teachersRepository.AddTeacherAsync((Teacher)newUser);
                         await SignInAsync(newUser);
                         return RedirectToAction("Index", "Account");
@@ -140,7 +133,7 @@ namespace GliglockTest.Controllers
                 User userOrNull;
                 if (!model.IsTeacher)
                 {
-                    userOrNull = await _studentsRepository.GetStudentByEmailOrDefaultAsync(model.Email); //_dbContext.Students.FirstOrDefaultAsync(x => x.Email == model.Email);
+                    userOrNull = await _studentsRepository.GetStudentByEmailOrDefaultAsync(model.Email); 
                     if (userOrNull is Student student)
                     {
                         var isCorrectPassword = PasswordHasher.IsCorrectPassword(student, model.Password);
@@ -153,7 +146,7 @@ namespace GliglockTest.Controllers
                 }
                 else
                 {
-                    userOrNull = await _teachersRepository.GetTeacherByEmailOrDefaultAsync(model.Email); //_dbContext.Teachers.FirstOrDefaultAsync(x => x.Email == model.Email);
+                    userOrNull = await _teachersRepository.GetTeacherByEmailOrDefaultAsync(model.Email); 
                     if (userOrNull is Teacher teacher)
                     {
                         var isCorrectPassword = PasswordHasher.IsCorrectPassword(teacher, model.Password);
