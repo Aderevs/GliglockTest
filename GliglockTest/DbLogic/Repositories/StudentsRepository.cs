@@ -43,6 +43,13 @@ namespace GliglockTest.DbLogic.Repositories
                 .ThenInclude(pt => pt.Test)
                 .FirstAsync(s => s.Email == email);
         }
+        public Student GetStudentByEmailIncludePassedTests(string email)
+        {
+            return _dbContext.Students
+                .Include(s => s.PassedTests)
+                .ThenInclude(pt => pt.Test)
+                .First(s => s.Email == email);
+        }
         public async Task AddStudentAsync(Student student)
         {
             _dbContext.Students.Add(student);

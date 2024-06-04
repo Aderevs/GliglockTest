@@ -5,13 +5,6 @@ namespace GliglockTest.appCore.Account
 {
     public abstract class BaseUser
     {
-        protected readonly TestsDbContext _dbContext;
-
-        protected BaseUser(TestsDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         public Guid Id { get; set; }
         public string? FirstName { get; set; }
 

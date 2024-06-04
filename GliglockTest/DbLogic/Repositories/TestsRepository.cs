@@ -1,4 +1,5 @@
-﻿using GliglockTest.DbLogic;
+﻿using GliglockTest.appCore;
+using GliglockTest.DbLogic;
 using GliglockTest.DbLogic.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

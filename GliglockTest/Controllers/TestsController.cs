@@ -13,11 +13,16 @@ namespace GliglockTest.Controllers
     public class TestsController : Controller
     {
         private readonly TestsDbContext _dbContext;
+        private readonly IMapper _mapper;
+
         private readonly ITestsRepository _testsRepository;
         private readonly IStudentsRepository _studentsRepository;
         private readonly ITeachersRepository _teachersRepository;
         private readonly IPassedTestsRepository _passedTestsRepository;
-        private readonly IMapper _mapper;
+
+        private StudentTestTaker _student;
+        private TeacherTestCreator _teacher;
+
         private readonly IMemoryCache _cache;
         private const string CacheKeyTestsList = "TestsListPage";
         private const string CacheKeyCertainTest = "Tests";
@@ -30,15 +35,32 @@ namespace GliglockTest.Controllers
                    ITestsRepository testRepository,
                    IStudentsRepository studentsRepository,
                    ITeachersRepository teachersRepository,
-                   IPassedTestsRepository passedTestsRepository)
+                   IPassedTestsRepository passedTestsRepository,
+                   StudentTestTaker student,
+                   TeacherTestCreator teacher)
         {
-                 _dbContext = dbContext;
+            _dbContext = dbContext;
             _mapper = mapper;
             _cache = memoryCache;
             _testsRepository = testRepository;
             _studentsRepository = studentsRepository;
             _passedTestsRepository = passedTestsRepository;
             _teachersRepository = teachersRepository;
+            _student = student;
+            _teacher = teacher;
+            /*
+                        if (User.IsInRole("Student") &&
+                            (_student.Email == null || _student.Email != User?.Identity?.Name))
+                        {
+                            var studentDb = _studentsRepository.GetStudentByEmailIncludePassedTests(User.Identity.Name);
+                            _student.ParseStudentFromDb(studentDb);
+                        }
+                        else if (User.IsInRole("Teacher") &&
+                            (_teacher.Email == null || _teacher.Email != User?.Identity?.Name))
+                        {
+                            var teacherDb = _teachersRepository.GetTeacherByEmailIncludeCreatedTests(User.Identity.Name);
+                            _teacher.ParseTeacherFromDb(teacherDb);
+                        }*/
         }
 
 
@@ -150,20 +172,25 @@ namespace GliglockTest.Controllers
             passedTest.CalculateMark();
             if (User.Identity.IsAuthenticated)
             {
-                appCore.Account.StudentTestTaker student = new(_dbContext, _mapper);
+                //appCore.Account.StudentTestTaker student = new(_mapper);
                 /*var studentDb = await _dbContext.Students
                     .Include(s => s.PassedTests)
                     .ThenInclude(pt => pt.Test)
                     .FirstAsync(s => s.Email == User.Identity.Name);*/
-                var studentDb = await _studentsRepository.GetStudentByEmailIncludePassedTestsAsync(User.Identity.Name);
+                /*var studentDb = await _studentsRepository.GetStudentByEmailIncludePassedTestsAsync(User.Identity.Name);
                 student.Id = studentDb.Id;
                 student.Email = studentDb.Email;
                 student.FirstName = studentDb.FirstName;
                 student.LastName = studentDb.LastName;
                 student.BirthDay = studentDb.BirthDay;
                 var studentsPassedTests = _mapper.Map<List<appCore.PassedTest>>(studentDb.PassedTests);
-                student.PassedTests = studentsPassedTests;
-                await student.SaveTestResultAsync(passedTest);
+                student.PassedTests = studentsPassedTests;*/
+                if (_student.Email == null || _student.Email != User.Identity.Name)
+                {
+                    var studentDb = _studentsRepository.GetStudentByEmailIncludePassedTests(User.Identity.Name);
+                    _student.ParseStudentFromDb(studentDb);
+                }
+                await _student.SaveTestResultAsync(passedTest);
             }
             return View("Results", passedTest);
         }
@@ -230,10 +257,15 @@ namespace GliglockTest.Controllers
             testModel.Questions.ForEach(q => q.WithImg = UploadImage(q.Image, q.Id.ToString()));
 
 
-            var teacherDb = await _teachersRepository.GetTeacherByEmailAsync(User.Identity.Name);
-                //_dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
-            TeacherTestCreator teacher = new TeacherTestCreator(_dbContext, _mapper, teacherDb);
-            await teacher.CreateTest(testModel);
+            /*var teacherDb = await _teachersRepository.GetTeacherByEmailAsync(User.Identity.Name);
+            //_dbContext.Teachers.FirstAsync(t => t.Email == User.Identity.Name);
+            TeacherTestCreator teacher = new TeacherTestCreator(_mapper, teacherDb);*/
+            if (_teacher.Email == null || _teacher.Email != User?.Identity?.Name)
+            {
+                var teacherDb = _teachersRepository.GetTeacherByEmailIncludeCreatedTests(User.Identity.Name);
+                _teacher.ParseTeacherFromDb(teacherDb);
+            }
+            await _teacher.CreateTest(testModel);
             return RedirectToAction("Index");
         }
 

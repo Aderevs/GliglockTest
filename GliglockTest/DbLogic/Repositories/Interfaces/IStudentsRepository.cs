@@ -7,6 +7,7 @@
         Task<IEnumerable<Student>> GetAllStudentsAsync();
         Task<Student> GetStudentByEmailAsync(string email);
         Task<Student> GetStudentByEmailIncludePassedTestsAsync(string email);
+        Student GetStudentByEmailIncludePassedTests(string email);
         Task<Student> GetStudentByEmailOrDefaultAsync(string email);
         Task<Student> GetStudentByIdAsync(Guid id);
         Task<Student> GetStudentByIdIncludePassedTestsAsync(Guid id);
