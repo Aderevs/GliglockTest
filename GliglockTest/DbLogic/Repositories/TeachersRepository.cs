@@ -46,7 +46,7 @@ namespace GliglockTest.DbLogic.Repositories
             _dbContext.Teachers.Add(teacher);
             await _dbContext.SaveChangesAsync();
         }
-        public async Task<bool> CheckIfExistsTeacherWithEmail(string email)
+        public async Task<bool> CheckIfExistsTeacherWithEmailAsync(string email)
         {
             return await _dbContext.Teachers.AnyAsync(t => t.Email == email);
         }

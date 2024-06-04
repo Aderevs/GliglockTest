@@ -3,7 +3,7 @@
     public interface IStudentsRepository
     {
         Task AddStudentAsync(Student student);
-        Task<bool> CheckIfExistsStudentWithEmail(string email);
+        Task<bool> CheckIfExistsStudentWithEmailAsync(string email);
         Task<IEnumerable<Student>> GetAllStudentsAsync();
         Task<Student> GetStudentByEmailAsync(string email);
         Task<Student> GetStudentByEmailIncludePassedTestsAsync(string email);

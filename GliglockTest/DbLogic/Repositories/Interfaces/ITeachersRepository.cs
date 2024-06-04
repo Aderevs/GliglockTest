@@ -3,7 +3,7 @@
     public interface ITeachersRepository
     {
         Task AddTeacherAsync(Teacher teacher);
-        Task<bool> CheckIfExistsTeacherWithEmail(string email);
+        Task<bool> CheckIfExistsTeacherWithEmailAsync(string email);
         Task<IEnumerable<Teacher>> GetAllTeachersAsync();
         Task<Teacher> GetTeacherByEmailAsync(string email);
         Task<Teacher> GetTeacherByEmailIncludeCreatedTestsAsync(string email);
