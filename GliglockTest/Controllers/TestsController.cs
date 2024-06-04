@@ -12,7 +12,7 @@ namespace GliglockTest.Controllers
 {
     public class TestsController : Controller
     {
-        private readonly TestsDbContext _dbContext;
+        //private readonly TestsDbContext _dbContext;
         private readonly IMapper _mapper;
 
         private readonly ITestsRepository _testsRepository;
@@ -20,8 +20,8 @@ namespace GliglockTest.Controllers
         private readonly ITeachersRepository _teachersRepository;
         private readonly IPassedTestsRepository _passedTestsRepository;
 
-        private StudentTestTaker _student;
-        private TeacherTestCreator _teacher;
+        private readonly StudentTestTaker _student;
+        private readonly TeacherTestCreator _teacher;
 
         private readonly IMemoryCache _cache;
         private const string CacheKeyTestsList = "TestsListPage";
@@ -29,7 +29,7 @@ namespace GliglockTest.Controllers
         private const int NumberOfTestsInOnePage = 2;
 
         public TestsController(
-                   TestsDbContext dbContext,
+                   //TestsDbContext dbContext,
                    IMapper mapper,
                    IMemoryCache memoryCache,
                    ITestsRepository testRepository,
@@ -39,7 +39,7 @@ namespace GliglockTest.Controllers
                    StudentTestTaker student,
                    TeacherTestCreator teacher)
         {
-            _dbContext = dbContext;
+            //_dbContext = dbContext;
             _mapper = mapper;
             _cache = memoryCache;
             _testsRepository = testRepository;
