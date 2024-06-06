@@ -4,9 +4,10 @@ using GliglockTest.appCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using GliglockTest.appCore.Account;
 using Microsoft.Extensions.Caching.Memory;
 using GliglockTest.DbLogic.Repositories.Interfaces;
+using GliglockTest.Models.Bindings;
+using GliglockTest.appCore.Interfaces;
 
 namespace GliglockTest.Controllers
 {
@@ -14,7 +15,6 @@ namespace GliglockTest.Controllers
     {
         private readonly IMapper _mapper;
 
-        private readonly ITestsRepository _testsRepository;
         private readonly IStudentsRepository _studentsRepository;
         private readonly ITeachersRepository _teachersRepository;
         private readonly IPassedTestsRepository _passedTestsRepository;
@@ -22,102 +22,44 @@ namespace GliglockTest.Controllers
         private readonly StudentTestTaker _student;
         private readonly TeacherTestCreator _teacher;
 
-        private readonly IMemoryCache _cache;
-        private const string CacheKeyTestsList = "TestsListPage";
-        private const string CacheKeyCertainTest = "Tests";
-        private const int NumberOfTestsInOnePage = 2;
+        private readonly ICacheProvider _cacheProvider;
 
         public TestsController(
                    IMapper mapper,
-                   IMemoryCache memoryCache,
-                   ITestsRepository testRepository,
                    IStudentsRepository studentsRepository,
                    ITeachersRepository teachersRepository,
                    IPassedTestsRepository passedTestsRepository,
                    StudentTestTaker student,
-                   TeacherTestCreator teacher)
+                   TeacherTestCreator teacher,
+                   ICacheProvider cacheProvider)
         {
             _mapper = mapper;
-            _cache = memoryCache;
-            _testsRepository = testRepository;
             _studentsRepository = studentsRepository;
             _passedTestsRepository = passedTestsRepository;
             _teachersRepository = teachersRepository;
             _student = student;
             _teacher = teacher;
+            _cacheProvider = cacheProvider;
         }
-
-
-        private async Task<TestsListPage> RefillCacheForPageAndGetTests(ushort pageNumber)
-        {
-            var tests = await FetchTestsPageFromDB(pageNumber);
-            TestsListPage testsList = new TestsListPage
-            {
-                TestList = tests,
-                PageNumber = pageNumber
-            };
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
-                .SetSlidingExpiration(TimeSpan.FromMinutes(2));
-
-            _cache.Set(CacheKeyTestsList + pageNumber.ToString(), testsList, cacheEntryOptions);
-            return testsList;
-        }
-        private async Task<TestsListPage> RefillCacheForPageAndGetTests() => await RefillCacheForPageAndGetTests(1);
-
-        private async Task<appCore.Test> GetCertainTestAndAddToCache(Guid testId)
-        {
-            var test = await FetchTestFromDb(testId);
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-               .SetAbsoluteExpiration(TimeSpan.FromMinutes(10))
-               .SetSlidingExpiration(TimeSpan.FromMinutes(2));
-            _cache.Set(CacheKeyCertainTest + testId.ToString(), test, cacheEntryOptions);
-            return test;
-        }
-        private async Task<List<appCore.Test>> FetchTestsPageFromDB(int pageNumber)
-        {
-            var allTestsDb = await _testsRepository.GetPaginatedSolidTestsIncludeTeacherAsync(NumberOfTestsInOnePage, pageNumber);
-            return _mapper.Map<List<appCore.Test>>(allTestsDb);
-        }
-
-        private async Task<appCore.Test> FetchTestFromDb(Guid testId)
-        {
-            var testDb = await _testsRepository.GetSolidTestByIdAsync(testId);
-            var test = _mapper.Map<appCore.Test>(testDb);
-            return test;
-        }
-
 
         public async Task<IActionResult> Index()
         {
-            TestsListPage? testsListPage;
-            if (!_cache.TryGetValue(CacheKeyTestsList + "1", out testsListPage))
-            {
-                testsListPage = await RefillCacheForPageAndGetTests();
-            }
+            TestsListPage? testsListPage = await _cacheProvider.GetTestsForPageAsync();
             return View(testsListPage);
 
         }
 
         public async Task<IActionResult> CertainTest(Guid testId)
         {
-            appCore.Test test;
-            if (!_cache.TryGetValue(CacheKeyCertainTest + testId.ToString(), out test))
-            {
-                test = await GetCertainTestAndAddToCache(testId);
-            }
+            appCore.Test test = await _cacheProvider.GetCertainTestAsync(testId);
             return View(test);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubmitAnswers([FromBody] List<Answer> answers, [FromQuery] Guid testId)
+        public async Task<IActionResult> SubmitAnswers([FromBody] List<AnswerBindingModel> answers, [FromQuery] Guid testId)
         {
             appCore.PassedTest passedTest = new appCore.PassedTest();
-            appCore.Test test;
-            if (!_cache.TryGetValue(CacheKeyCertainTest + testId.ToString(), out test))
-            {
-                test = await GetCertainTestAndAddToCache(testId);
-            }
+            appCore.Test test = await _cacheProvider.GetCertainTestAsync(testId);
             passedTest.Test = test;
             if (answers == null)
             {
@@ -144,7 +86,7 @@ namespace GliglockTest.Controllers
             {
                 if (_student.Email == null || _student.Email != User.Identity.Name)
                 {
-                    var studentDb = _studentsRepository.GetStudentByEmailIncludePassedTests(User.Identity.Name);
+                    var studentDb = await _studentsRepository.GetStudentByEmailIncludePassedTestsAsync(User.Identity.Name);
                     _student.ParseStudentFromDb(studentDb);
                 }
                 await _student.SaveTestResultAsync(passedTest);
@@ -200,7 +142,7 @@ namespace GliglockTest.Controllers
             
             if (_teacher.Email == null || _teacher.Email != User?.Identity?.Name)
             {
-                var teacherDb = _teachersRepository.GetTeacherByEmailIncludeCreatedTests(User.Identity.Name);
+                var teacherDb = await _teachersRepository.GetTeacherByEmailIncludeCreatedTestsAsync(User.Identity.Name);
                 _teacher.ParseTeacherFromDb(teacherDb);
             }
             await _teacher.CreateTest(testModel);
@@ -209,13 +151,10 @@ namespace GliglockTest.Controllers
 
         public async Task<IActionResult> TestsList(ushort page)
         {
-            TestsListPage testsListPage;
-            if (!_cache.TryGetValue(CacheKeyTestsList + page.ToString(), out testsListPage))
-            {
-                testsListPage = await RefillCacheForPageAndGetTests(page);
-            }
+            TestsListPage testsListPage = await _cacheProvider.GetTestsForPageAsync(page);
             return View("Index", testsListPage);
         }
+
         private bool UploadImage(IFormFile image, string name)
         {
             if (image == null) return false;

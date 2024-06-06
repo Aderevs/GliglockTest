@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GliglockTest.Models
+namespace GliglockTest.Models.Bindings
 {
     public class AuthenticationBindingModel
     {

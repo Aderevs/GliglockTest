@@ -4,7 +4,7 @@ using GliglockTest.DbLogic.Repositories.Interfaces;
 using Microsoft.Identity.Client;
 using System.Runtime.CompilerServices;
 
-namespace GliglockTest.appCore.Account
+namespace GliglockTest.appCore
 {
     public class TeacherTestCreator : BaseUser
     {
@@ -32,7 +32,7 @@ namespace GliglockTest.appCore.Account
             var dbTest = _mapper.Map<DbLogic.Test>(test);
             await _testsRepository.AddTestAsync(dbTest);
         }
-        public void ParseTeacherFromDb(DbLogic.Teacher teacher)
+        public void ParseTeacherFromDb(Teacher teacher)
         {
             if (teacher == null)
             {

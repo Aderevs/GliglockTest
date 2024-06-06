@@ -1,6 +1,6 @@
 using AutoMapper;
 using GliglockTest.appCore;
-using GliglockTest.appCore.Account;
+using GliglockTest.appCore.Interfaces;
 using GliglockTest.DbLogic;
 using GliglockTest.DbLogic.Repositories;
 using GliglockTest.DbLogic.Repositories.Interfaces;
@@ -39,6 +39,7 @@ namespace GliglockTest
 
             builder.Services.AddScoped<StudentTestTaker>();
             builder.Services.AddScoped<TeacherTestCreator>();
+            builder.Services.AddScoped<ICacheProvider, CacheProvider>();
 
             var app = builder.Build();
 

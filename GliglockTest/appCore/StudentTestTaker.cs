@@ -4,7 +4,7 @@ using GliglockTest.DbLogic.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
-namespace GliglockTest.appCore.Account
+namespace GliglockTest.appCore
 {
     public class StudentTestTaker(IMapper mapper, IPassedTestsRepository passedTestsRepository) : BaseUser
     {
@@ -25,7 +25,7 @@ namespace GliglockTest.appCore.Account
             await _passedTestsRepository.AddPassedTestAsync(dbPassedTest);
         }
 
-        public void ParseStudentFromDb(DbLogic.Student student)
+        public void ParseStudentFromDb(Student student)
         {
             if (student == null)
             {

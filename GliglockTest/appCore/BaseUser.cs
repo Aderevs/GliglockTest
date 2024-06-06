@@ -1,7 +1,7 @@
 ﻿using GliglockTest.DbLogic;
 using System.ComponentModel.DataAnnotations;
 
-namespace GliglockTest.appCore.Account
+namespace GliglockTest.appCore
 {
     public abstract class BaseUser
     {

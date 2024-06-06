@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace GliglockTest.appCore.Account
+namespace GliglockTest.appCore
 {
     public class PasswordHasher
     {

@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GliglockTest.Models
+namespace GliglockTest.appCore
 {
     public class CheckDateNotEarlierThanTodayAttribute : ValidationAttribute
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if(value != null)
+            if (value != null)
             {
                 DateTime date;
                 if (value is DateOnly dateOnly)

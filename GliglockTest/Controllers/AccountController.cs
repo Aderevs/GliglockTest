@@ -1,5 +1,4 @@
-﻿using GliglockTest.appCore.Account;
-using GliglockTest.DbLogic;
+﻿using GliglockTest.DbLogic;
 using GliglockTest.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
@@ -9,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using GliglockTest.DbLogic.Repositories.Interfaces;
+using GliglockTest.appCore;
+using GliglockTest.Models.Bindings;
 
 namespace GliglockTest.Controllers
 {
@@ -33,7 +34,7 @@ namespace GliglockTest.Controllers
         {
             if (User.IsInRole("Student"))
             {
-                var studentDb = await _studentsRepository.GetStudentByEmailAsync(User.Identity.Name); 
+                var studentDb = await _studentsRepository.GetStudentByEmailAsync(User.Identity.Name);
                 var student = _mapper.Map<StudentView>(studentDb);
                 return View(student);
             }
@@ -63,7 +64,7 @@ namespace GliglockTest.Controllers
                 User newUser;
                 if (!model.IsTeacher)
                 {
-                    loginIsUnique = !await _studentsRepository.CheckIfExistsStudentWithEmailAsync(model.Email); 
+                    loginIsUnique = !await _studentsRepository.CheckIfExistsStudentWithEmailAsync(model.Email);
                     if (loginIsUnique)
                     {
                         newUser = new Student
@@ -133,7 +134,7 @@ namespace GliglockTest.Controllers
                 User userOrNull;
                 if (!model.IsTeacher)
                 {
-                    userOrNull = await _studentsRepository.GetStudentByEmailOrDefaultAsync(model.Email); 
+                    userOrNull = await _studentsRepository.GetStudentByEmailOrDefaultAsync(model.Email);
                     if (userOrNull is Student student)
                     {
                         var isCorrectPassword = PasswordHasher.IsCorrectPassword(student, model.Password);
@@ -146,7 +147,7 @@ namespace GliglockTest.Controllers
                 }
                 else
                 {
-                    userOrNull = await _teachersRepository.GetTeacherByEmailOrDefaultAsync(model.Email); 
+                    userOrNull = await _teachersRepository.GetTeacherByEmailOrDefaultAsync(model.Email);
                     if (userOrNull is Teacher teacher)
                     {
                         var isCorrectPassword = PasswordHasher.IsCorrectPassword(teacher, model.Password);

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using GliglockTest.appCore.Account;
 using System.Linq.Expressions;
 
 namespace GliglockTest.appCore
@@ -31,7 +30,7 @@ namespace GliglockTest.appCore
             CreateMap<DbLogic.Student, Models.StudentView>();
             CreateMap<DbLogic.Teacher, Models.TeacherView>();
 
-            CreateMap<Account.StudentTestTaker, Models.StudentView>();
+            CreateMap<StudentTestTaker, Models.StudentView>();
         }
     }
 }

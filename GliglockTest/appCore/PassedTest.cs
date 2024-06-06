@@ -1,5 +1,4 @@
-﻿using GliglockTest.appCore.Account;
-using GliglockTest.DbLogic;
+﻿using GliglockTest.DbLogic;
 
 namespace GliglockTest.appCore
 {

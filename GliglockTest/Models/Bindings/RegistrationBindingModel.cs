@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GliglockTest.appCore;
 
-namespace GliglockTest.Models
+namespace GliglockTest.Models.Bindings
 {
     public class RegistrationBindingModel
     {

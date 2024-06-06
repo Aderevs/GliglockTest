@@ -1,6 +1,6 @@
-﻿namespace GliglockTest.appCore
+﻿namespace GliglockTest.Models.Bindings
 {
-    public class Answer
+    public class AnswerBindingModel
     {
         public Guid QuestionId { get; set; }
         public List<Guid> SelectedOptions { get; set; }
